@@ -1,8 +1,14 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+
 .DS_Store
-.vscode
+.editorconfig
 
-./server/node_modules/
+node_modules/
 
-./client/node_modules/*
-./client/dist/
-./client/.editorconfig
+server/public/
+
+client/node_modules/
+client/dist/
