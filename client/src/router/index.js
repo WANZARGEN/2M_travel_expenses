@@ -7,10 +7,12 @@ import join from '@/components/join'
 Vue.use(Router)
 
 export default new Router({
+  // mode: 'history',
   routes: [
     // {
     //   path: '/',
-    //   component: login
+    //   name: 'join',
+    //   component: join
     // },
     // {
     //   path: '/home',
@@ -18,6 +20,7 @@ export default new Router({
     // },
     {
       path: '/join',
+      name: 'join',
       component: join
     }
   ]

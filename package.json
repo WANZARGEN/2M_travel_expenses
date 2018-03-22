@@ -7,11 +7,14 @@
   },
   "dependencies": {
     "body-parser": "^1.18.2",
+    "connect-history-api-fallback": "^1.5.0",
     "cookie-parser": "~1.4.3",
     "debug": "~2.6.9",
     "dotenv": "^5.0.1",
     "express": "~4.16.0",
     "mongoose": "^5.0.11",
-    "morgan": "~1.9.0"
+    "morgan": "~1.9.0",
+    "vue": "^2.5.16",
+    "vue-server-renderer": "^2.5.16"
   }
 }
