@@ -6,6 +6,11 @@ import router from './router'
 import axios from 'axios'
 
 Vue.config.productionTip = false
+
+// set axios global config
+axios.defaults.timeout = 5000
+axios.defaults.headers.post['Content-Type'] = 'application/charset=UTF-8'
+
 Vue.prototype.$http = axios
 
 /* eslint-disable no-new */

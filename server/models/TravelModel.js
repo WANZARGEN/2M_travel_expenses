@@ -3,7 +3,6 @@ var Schema   = mongoose.Schema;
 
 // Define Schemes
 const travelSchema = new mongoose.Schema({
-  _id: Schema.Types.ObjectId,
   traveller: [{ type: Schema.Types.ObjectId, ref: 'User' }],
   destination: [{ type: String }],
   startDate: { type: Date },

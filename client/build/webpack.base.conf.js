@@ -1,4 +1,6 @@
 'use strict'
+require('es6-promise').polyfill();
+
 const path = require('path')
 const utils = require('./utils')
 const config = require('../config')

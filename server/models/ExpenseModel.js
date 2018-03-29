@@ -3,7 +3,6 @@ var Schema   = mongoose.Schema;
 
 // Define Schemes
 const expenseSchema = new mongoose.Schema({
-  _id: Schema.Types.ObjectId,
   comment: { type: String },
   amount: { type: Number },
   payer: { type: Schema.Types.ObjectId, ref: 'User' },

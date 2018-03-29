@@ -48,7 +48,6 @@ module.exports = {
      */
     create: function (req, res) {
         var Expense = new ExpenseModel({
-			_id : req.body._id,
 			comment : req.body.comment,
 			amount : req.body.amount,
 			payer : req.body.payer,
@@ -88,7 +87,6 @@ module.exports = {
                 });
             }
 
-            Expense._id = req.body._id ? req.body._id : Expense._id;
 			Expense.comment = req.body.comment ? req.body.comment : Expense.comment;
 			Expense.amount = req.body.amount ? req.body.amount : Expense.amount;
 			Expense.payer = req.body.payer ? req.body.payer : Expense.payer;

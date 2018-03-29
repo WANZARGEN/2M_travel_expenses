@@ -4,9 +4,10 @@
 
 
   <form>
+    <input v-model="name" placeholder="name"><br>
     <input v-model="email" placeholder="email"><br>
     <input v-model="password" placeholder="password"><br>
-    <button v-on:click="join">Join</button>
+    <button type='button' v-on:click="join">Join</button>
   </form>
 
   <br><br>
@@ -19,6 +20,9 @@
 
 
 <script>
+var email = '',
+    password = '';
+
 export default {
   name: 'app',
   data: function() {
@@ -26,18 +30,25 @@ export default {
       msg: "Let's go HK! WJ & JA",
       owner: "made by WANZARGEN ",
       email: '',
-      password: ''
+      password: '',
+      name: ''
     }
   },
   methods: {
     join: function() {
-      const baseURI = 'https://localhost:3000';
-      this.$http.get(`${baseURI}/api/user`)
-      .then((result) => {
-        console.log(result)
+      const baseURI = 'http://localhost:3000';
+      this.$http.post(`${baseURI}/api/user`, {
+        name: this.name,
+        email: this.email,
+        password: this.password
       })
-
-      alert('Welcome!')
+      .then((result) => {
+        console.log(result.data)
+        alert('Welcome!')
+        this.$router.push('/home')
+      }).catch((err) => {
+        console.error(err)
+      })     
     }
   }
 }

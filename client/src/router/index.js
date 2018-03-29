@@ -1,13 +1,17 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import join from '@/components/join'
+
+import JoinComponent from '@/components/join'
+import NotFoundComponent from '@/components/not-found'
+import HomeComponent from '@/components/home'
 // import login from '@/components/login'
 // import home from '@/components/home'
 
 Vue.use(Router)
 
+
 export default new Router({
-  // mode: 'history',
+  mode: 'history',
   routes: [
     // {
     //   path: '/',
@@ -21,7 +25,16 @@ export default new Router({
     {
       path: '/join',
       name: 'join',
-      component: join
+      component: JoinComponent
+    },
+    {
+      path: '/home',
+      name: 'home',
+      component: HomeComponent
+    },
+    {
+      path: '**',
+      component: NotFoundComponent
     }
   ]
 })

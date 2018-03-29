@@ -48,7 +48,6 @@ module.exports = {
      */
     create: function (req, res) {
         var Travel = new TravelModel({
-			_id : req.body._id,
 			traveller : req.body.traveller,
 			destination : req.body.destination,
 			startDate : req.body.startDate,
@@ -85,7 +84,6 @@ module.exports = {
                 });
             }
 
-            Travel._id = req.body._id ? req.body._id : Travel._id;
 			Travel.traveller = req.body.traveller ? req.body.traveller : Travel.traveller;
 			Travel.destination = req.body.destination ? req.body.destination : Travel.destination;
 			Travel.startDate = req.body.startDate ? req.body.startDate : Travel.startDate;

@@ -18,6 +18,7 @@ module.exports = {
                     error: err
                 });
             }
+            console.log(Users)
             return res.json(Users);
         });
     },
@@ -48,7 +49,6 @@ module.exports = {
      */
     create: function (req, res) {
         var User = new UserModel({
-			_id : req.body._id,
 			email : req.body.email,
 			password : req.body.password,
 			name : req.body.name
@@ -84,7 +84,6 @@ module.exports = {
                 });
             }
 
-            User._id = req.body._id ? req.body._id : User._id;
 			User.email = req.body.email ? req.body.email : User.email;
 			User.password = req.body.password ? req.body.password : User.password;
 			User.name = req.body.name ? req.body.name : User.name;
