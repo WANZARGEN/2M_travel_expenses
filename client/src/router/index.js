@@ -28,6 +28,11 @@ export default new Router({
       component: JoinComponent
     },
     {
+      path: '/login',
+      name: 'login',
+      component: JoinComponent
+    },
+    {
       path: '/home',
       name: 'home',
       component: HomeComponent

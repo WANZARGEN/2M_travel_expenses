@@ -7,7 +7,7 @@
     <input v-model="name" placeholder="name"><br>
     <input v-model="email" placeholder="email"><br>
     <input v-model="password" placeholder="password"><br>
-    <button type='button' v-on:click="join">Join</button>
+    <button type='button' v-on:click="login">Login</button>
   </form>
 
   <br><br>
@@ -20,6 +20,9 @@
 
 
 <script>
+var email = '',
+    password = '';
+
 export default {
   name: 'app',
   data: function() {
@@ -32,7 +35,7 @@ export default {
     }
   },
   methods: {
-    join: function() {
+    login: function() {
       const baseURI = 'http://localhost:3000';
       this.$http.post(`${baseURI}/api/user`, {
         name: this.name,
