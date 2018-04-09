@@ -4,8 +4,8 @@ import Router from 'vue-router'
 import JoinComponent from '@/components/join'
 import NotFoundComponent from '@/components/not-found'
 import HomeComponent from '@/components/home'
+import ListComponent from '@/components/list'
 // import login from '@/components/login'
-// import home from '@/components/home'
 
 Vue.use(Router)
 
@@ -13,15 +13,6 @@ Vue.use(Router)
 export default new Router({
   mode: 'history',
   routes: [
-    // {
-    //   path: '/',
-    //   name: 'join',
-    //   component: join
-    // },
-    // {
-    //   path: '/home',
-    //   component: home
-    // },
     {
       path: '/join',
       name: 'join',
@@ -36,6 +27,11 @@ export default new Router({
       path: '/home',
       name: 'home',
       component: HomeComponent
+    },
+    {
+      path: '/list',
+      name: 'list',
+      component: ListComponent
     },
     {
       path: '**',

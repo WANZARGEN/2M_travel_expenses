@@ -54,7 +54,8 @@ module.exports = {
 			chargedTo : req.body.chargedTo,
 			method : req.body.method,
 			unit : req.body.unit,
-			datetime : req.body.datetime
+            date : req.body.date,
+            time : req.body.time
 
         });
 
@@ -93,7 +94,8 @@ module.exports = {
 			Expense.chargedTo = req.body.chargedTo ? req.body.chargedTo : Expense.chargedTo;
 			Expense.method = req.body.method ? req.body.method : Expense.method;
 			Expense.unit = req.body.unit ? req.body.unit : Expense.unit;
-			Expense.datetime = req.body.datetime ? req.body.datetime : Expense.datetime;
+            Expense.date = req.body.date ? req.body.date : Expense.date;
+            Expense.time = req.body.time ? req.body.time : Expense.time;
 			
             Expense.save(function (err, Expense) {
                 if (err) {

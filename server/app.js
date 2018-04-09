@@ -32,7 +32,7 @@ app.all('*', function(req, res, next) {
 });
 
 // Link Routers
-// app.use('/', indexRouter);
+app.use('*', indexRouter);
 app.use('/api/user/', userRouter);
 app.use('/api/travel/', travelRouter);
 app.use('/api/expense/', expenseRouter);

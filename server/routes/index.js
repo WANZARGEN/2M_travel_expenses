@@ -5,8 +5,9 @@ var app = express();
 
 /* GET home page. */
 router.get('*', function(req, res, next) {
-  console.log('url', req.url)
+  console.log('*************** url', req.url)
   res.sendFile(path.join(__dirname, '../public', 'index.html'));
+  next()
 });
 
 module.exports = router;
