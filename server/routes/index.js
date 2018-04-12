@@ -3,11 +3,12 @@ var router = express.Router();
 const path = require('path');
 var app = express();
 
-/* GET home page. */
-router.get('*', function(req, res, next) {
-  console.log('*************** url', req.url)
-  res.sendFile(path.join(__dirname, '../public', 'index.html'));
-  next()
-});
+const userRouter = require('./UserRoutes');
+const travelRouter = require('./TravelRoutes');
+const expenseRouter = require('./ExpenseRoutes');
+
+router.use('/user/', userRouter);
+router.use('/travel/', travelRouter);
+router.use('/expense/', expenseRouter);
 
 module.exports = router;

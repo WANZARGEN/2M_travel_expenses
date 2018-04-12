@@ -1,9 +1,8 @@
 <template>
 <div id="app">
-  <h1>{{ msg }}</h1> <br>
 
   <form>
-    <h3>Fill in Your Spending Details</h3><br>
+    <h3>Edit Your Spending Details</h3><br>
 
     <div class='form-box'>
       <label class='w-90'>Date</label>
@@ -50,14 +49,13 @@
     <button type='button' v-on:click="save">Save</button>
     <br>
     <br>
-    <button type='button' v-on:click="goList">See List</button>
+    <button type='button' v-on:click="goList">Cancel</button>
   </form>
   
 
   <br><br><br><br>
   
 
-  <span>{{ owner }}</span>
 
 </div>
 </template>
@@ -72,7 +70,7 @@ const baseURI = 'http://localhost:3000';
 
 function save() {
   console.log('date: ', this.date)
-  this.$http.post(`${baseURI}/api/expense`, {
+  this.$http.put(`${baseURI}/api/expense/` + this.id, {
     comment: this.comment,
     amount: this.amount,
     payer: this.payer,
@@ -83,15 +81,8 @@ function save() {
     time: this.time
   })
   .then((result) => {
-    alert('Succeed!')
-    this.date = moment(new Date()).format('YYYY-MM-DD')
-    this.time = moment(new Date()).format('HH:mm')
-    this.amount = '0'
-    this.comment = ''
-    this.payer = '1'
-    this.chargedTo = '1'
-    this.unit = '1'
-    this.method = '1'
+    alert('Updated!')
+    this.$router.push('/list')
   }).catch((err) => {
     console.error(err)
   })     
@@ -101,12 +92,29 @@ function goList() {
   this.$router.push('/list') 
 }
 
+function getDetail(_this) {
+  if(_this == undefined) _this = this
+  _this.$http.get(`${baseURI}/api/expense/` + _this.id)
+  .then((result) => {
+    _this.comment = result.data.comment
+    _this.amount = result.data.amount
+    _this.payer = result.data.payer
+    _this.chargedTo = result.data.chargedTo
+    _this.method = result.data.method
+    _this.unit = result.data.unit
+    _this.date = result.data.date
+    _this.time = result.data.time
+
+    console.log(result)
+  }).catch((err) => {
+    console.error(err)
+  })     
+}
+
 export default {
   name: 'app',
   data: function() {
     return {
-      msg: "Let's go HK! WJ & JA",
-      owner: "made by WANZARGEN ",
       date: moment(new Date()).format('YYYY-MM-DD'),
       time: moment(new Date()).format('HH:mm'),
       amount: '0',
@@ -114,12 +122,19 @@ export default {
       payer: '1',
       chargedTo: '1',
       unit: '1',
-      method: '1'
+      method: '1',
+      id: null
     }
   },
   methods: {
     save: save,
     goList: goList
+  },
+  created() {
+    this.id = this.$route.query.id
+  },
+  mounted() {
+    getDetail(this)
   }
 }
 </script>
