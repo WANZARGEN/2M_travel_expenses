@@ -70,7 +70,7 @@ moment().format();
 const baseURI = 'http://localhost:3000';
 
 
-function save() {
+var save = function() {
   console.log('date: ', this.date)
   this.$http.post(`${baseURI}/api/expense`, {
     comment: this.comment,
@@ -95,9 +95,9 @@ function save() {
   }).catch((err) => {
     console.error(err)
   })     
-}
+},
 
-function goList() {
+goList = function() {
   this.$router.push('/list') 
 }
 

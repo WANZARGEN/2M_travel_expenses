@@ -5,7 +5,6 @@
 
   <form>
     <input v-model="name" placeholder="name"><br>
-    <input v-model="email" placeholder="email"><br>
     <input v-model="password" placeholder="password"><br>
     <button type='button' v-on:click="login">Login</button>
   </form>
@@ -20,16 +19,12 @@
 
 
 <script>
-var email = '',
-    password = '';
-
 export default {
   name: 'app',
   data: function() {
     return {
       msg: "Let's go HK! WJ & JA",
       owner: "made by WANZARGEN ",
-      email: '',
       password: '',
       name: ''
     }
@@ -37,9 +32,8 @@ export default {
   methods: {
     login: function() {
       const baseURI = 'http://localhost:3000';
-      this.$http.post(`${baseURI}/api/user`, {
+      this.$http.post(`${baseURI}/api/user/login`, {
         name: this.name,
-        email: this.email,
         password: this.password
       })
       .then((result) => {
@@ -48,6 +42,7 @@ export default {
         this.$router.push('/home')
       }).catch((err) => {
         console.error(err)
+        alert(err.response.data.message)
       })     
     }
   }

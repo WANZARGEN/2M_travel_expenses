@@ -5,8 +5,7 @@
 
   <form>
     <input v-model="name" placeholder="name"><br>
-    <input v-model="email" placeholder="email"><br>
-    <input v-model="password" placeholder="password"><br>
+    <input v-model="password" type='password' placeholder="password"><br>
     <button type='button' v-on:click="join">Join</button>
   </form>
 
@@ -26,7 +25,6 @@ export default {
     return {
       msg: "Let's go HK! WJ & JA",
       owner: "made by WANZARGEN ",
-      email: '',
       password: '',
       name: ''
     }
@@ -36,13 +34,12 @@ export default {
       const baseURI = 'http://localhost:3000';
       this.$http.post(`${baseURI}/api/user`, {
         name: this.name,
-        email: this.email,
         password: this.password
       })
       .then((result) => {
         console.log(result.data)
         alert('Welcome!')
-        this.$router.push('/home')
+        this.$router.push('/login')
       }).catch((err) => {
         console.error(err)
       })     

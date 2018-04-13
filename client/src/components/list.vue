@@ -6,21 +6,26 @@
     <br>
 
     <div>
-    <label class='w-90'>&nbsp;Whoose: </label>
-      <select class='w-90' v-model="whose" v-on:change="onChangeWhose">
+      <label class='w-30'>&nbsp;Whoose: </label>
+      <select  v-model="whose" v-on:change="onChangeWhose">
         <option selected value="1">All</option>
         <option value="2">JOOAH</option>
         <option value="3">WANJIN</option>
       </select>
 
-      <label class='w-90'>&nbsp;Unit: </label>
-      <select class='w-90' v-model="unit" v-on:change="onChangeUnit">
+      <button type='button' v-on:click="goAccount">Account Info</button>
+      <br>
+      <br>
+    </div>
+
+    <div class='text-right'>
+      <label class='w-30'>&nbsp;Unit: </label>
+      <select v-model="unit" v-on:change="onChangeUnit">
         <option selected value="1">HKD</option>
         <option value="2">KRW</option>
         <option value="3">USD</option>
       </select>
     </div>
-    <br>
     
     <table>
       <thead>
@@ -80,7 +85,10 @@ var data = {
       selectList: []
     }
 
-function getList(_this) {
+/*------------------------------------------------------*
+ * Functions
+ *------------------------------------------------------*/
+var getList = function(_this) {
   if(_this == undefined) _this = this
   _this.$http.get(`${baseURI}/api/expense`)
   .then((result) => {
@@ -89,21 +97,17 @@ function getList(_this) {
   }).catch((err) => {
     console.error(err)
   })     
-}
+},
 
-function onChangeWhose() {
+onChangeWhose = function() {
 
-}
+},
 
-function onChangeUnit() {
+onChangeUnit = function() {
 
-}
+},
 
-function goHome() {
-  this.$router.push('/home') 
-}
-
-function selectItem(id, idx, e) {
+selectItem = function(id, idx, e) {
   if(this.selectList[idx] != id) {
     this.selectList[idx] = id
     if(e.target.localName == 'td') e.target.parentElement.className = 'selected'
@@ -129,10 +133,9 @@ function selectItem(id, idx, e) {
     deleteElem.className = deleteElem.className.replace(check, " ").trim();
     editElem.className = editElem.className.replace(check, " ").trim();
   }
-  
-}
+},
 
-function goEdit() {
+goEdit = function() {
   if(selectCount != 1) return;
   let item;
   for(let i = 0; i < this.selectList.length; i++) {
@@ -141,9 +144,9 @@ function goEdit() {
       break;
     }
   }
-}
+},
 
-function del() {
+del = function() {
   if(selectCount <= 0) return;
 
   if(window.confirm('Do you really want to delete?')) {
@@ -162,11 +165,21 @@ function del() {
         })  
       } 
     }
-    
   }
+},
+
+goAccount = function() {
+  this.$router.push('/account') 
+},
+
+goHome = function() {
+  this.$router.push('/home') 
 }
 
 
+/*------------------------------------------------------*
+ * Export
+ *------------------------------------------------------*/
 export default {
   name: 'app',
   data: function() {
@@ -179,7 +192,8 @@ export default {
     selectItem: selectItem,
     del: del,
     goEdit: goEdit,
-    goHome: goHome
+    goHome: goHome,
+    goAccount: goAccount
   }, 
   mounted() {
     getList(this)
@@ -187,9 +201,14 @@ export default {
 }
 </script>
 
+
+
+
+
 <style scoped>
 form {
   display: inline-block;
+  width: 100%;
 }
 .form-box {
   text-align: left;
@@ -222,6 +241,9 @@ form {
 .text-left {
   text-align: left;
 }
+.text-right {
+  text-align: right;
+}
 
 
 #app {
@@ -234,14 +256,15 @@ table {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.7rem;
+  margin-top: 5px;
 }
 table tr {
   border-bottom: 1px solid rgba(0,0,0,0.1);
 }
+
 .selected {
   background-color: rgba(0,0,0,0.1);
 }
-
 .opt-box {
   position: absolute;
   display: flex;

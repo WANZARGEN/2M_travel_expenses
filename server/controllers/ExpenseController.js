@@ -11,6 +11,7 @@ module.exports = {
      * ExpenseController.list()
      */
     list: function (req, res) {
+        console.log('req.session: ', req.session)
         ExpenseModel.find(function (err, Expenses) {
             if (err) {
                 return res.status(500).json({

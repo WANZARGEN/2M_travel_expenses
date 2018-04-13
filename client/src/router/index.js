@@ -2,10 +2,12 @@ import Vue from 'vue'
 import Router from 'vue-router'
 
 import JoinComponent from '@/components/join'
+import LoginComponent from '@/components/login'
 import NotFoundComponent from '@/components/not-found'
 import HomeComponent from '@/components/home'
 import ListComponent from '@/components/list'
 import EditComponent from '@/components/edit'
+import AccountComponent from '@/components/account'
 // import login from '@/components/login'
 
 Vue.use(Router)
@@ -22,7 +24,7 @@ export default new Router({
     {
       path: '/login',
       name: 'login',
-      component: JoinComponent
+      component: LoginComponent
     },
     {
       path: '/home',
@@ -38,6 +40,11 @@ export default new Router({
       path: '/edit',
       name: 'edit',
       component: EditComponent
+    },
+    {
+      path: '/account',
+      name: 'account',
+      component: AccountComponent
     },
     {
       path: '**',
