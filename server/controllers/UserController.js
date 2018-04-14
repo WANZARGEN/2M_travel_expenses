@@ -1,4 +1,4 @@
-var userModel = require('../models/userModel.js');
+var userModel = require('../models/UserModel.js');
 
 /**
  * userController.js
@@ -44,7 +44,6 @@ module.exports = {
             req.session.userName = name
             
             console.log(req.session)
-            console.log(res)
             return res.json({ session:req.session });
         });
     },
@@ -94,7 +93,6 @@ module.exports = {
 			password : req.body.password
 
         });
-
         user.save(function (err, user) {
             if (err) {
                 return res.status(500).json({

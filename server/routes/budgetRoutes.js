@@ -1,30 +1,35 @@
 var express = require('express');
 var router = express.Router();
-var budgetController = require('../controllers/budgetController.js');
+var BudgetController = require('../controllers/BudgetController.js');
 
 /*
  * GET
  */
-router.get('/', budgetController.list);
+router.get('/show/:userId', BudgetController.showByUser);
 
 /*
  * GET
  */
-router.get('/:id', budgetController.show);
+router.get('/', BudgetController.list);
+
+/*
+ * GET
+ */
+router.get('/:id', BudgetController.show);
 
 /*
  * POST
  */
-router.post('/', budgetController.create);
+router.post('/', BudgetController.create);
 
 /*
  * PUT
  */
-router.put('/:id', budgetController.update);
+router.put('/:id', BudgetController.update);
 
 /*
  * DELETE
  */
-router.delete('/:id', budgetController.remove);
+router.delete('/:id', BudgetController.remove);
 
 module.exports = router;

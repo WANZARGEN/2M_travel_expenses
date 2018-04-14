@@ -7,8 +7,9 @@
     <div>
       <label class='w-30'>&nbsp;Whoose: </label>
       <select  v-model="whose" v-on:change="onChangeWhose">
-        <option value="2">JOOAH</option>
-        <option value="3">WANJIN</option>
+        <option v-for='(item, index) in userList' v-bind:value="item._id">
+          {{ item.name }}
+        </option>
       </select>
 
       <label class='w-30'>&nbsp;Unit: </label>
@@ -65,31 +66,21 @@ var data = {
       budget: 0,
       card: 0,
       cash: 0,
-      comment: '',
-      payer: '1',
-      chargedTo: '1',
       unit: '1',
-      method: '1',
-      id: null,
-      whose: 2
+      userId: null,
+      whose: this.userId,
+      userList: [],
+      budgetId: null
     }
 
 
 var save = function() {
-  console.log('date: ', this.date)
-  this.$http.put(`${baseURI}/api/expense/` + this.id, {
-    comment: this.comment,
-    amount: this.amount,
-    payer: this.payer,
-    chargedTo: this.chargedTo,
-    method: this.method,
-    unit: this.unit,
-    date: this.date,
-    time: this.time
+  this.$http.put(`${baseURI}/api/budget/` + this.budgetId, {
+    cash: this.cash,
+    card: this.card
   })
   .then((result) => {
     alert('Updated!')
-    this.$router.push('/list')
   }).catch((err) => {
     console.error(err)
   })     
@@ -99,20 +90,14 @@ goList = function() {
   this.$router.push('/list') 
 },
 
-getDetail = function(_this) {
+getBudget = function(_this) {
   if(_this == undefined) _this = this
-  _this.$http.get(`${baseURI}/api/expense/` + _this.id)
+  _this.$http.get(`${baseURI}/api/budget/show/` + _this.userId)
   .then((result) => {
-    _this.comment = result.data.comment
-    _this.amount = result.data.amount
-    _this.payer = result.data.payer
-    _this.chargedTo = result.data.chargedTo
-    _this.method = result.data.method
-    _this.unit = result.data.unit
-    _this.date = result.data.date
-    _this.time = result.data.time
-
-    console.log(result)
+      _this.card = result.data[0].card
+      _this.cash = result.data[0].cash
+      _this.budget = _this.card + _this.cash
+      _this.budgetId = result.data[0]._id
   }).catch((err) => {
     console.error(err)
   })     
@@ -124,10 +109,22 @@ onChangeWhose = function() {
 
 onChangeUnit = function() {
 
+},
+
+listUser = function(_this) {
+  if(!_this) _this = this
+  _this.$http.get(`${baseURI}/api/user`)
+  .then((result) => {
+    _this.userList = result.data
+  }).catch((err) => {
+    console.error(err)
+  })
 }
 
 
-
+/*------------------------------------------------------*
+ * Export
+ *------------------------------------------------------*/
 
 export default {
   name: 'app',
@@ -141,10 +138,12 @@ export default {
     onChangeWhose: onChangeWhose
   },
   created() {
-    this.id = this.$route.query.id
+    this.userId = this.$route.query.userId
+    this.whose = this.userId
   },
   mounted() {
-    getDetail(this)
+    getBudget(this)
+    listUser(this)
   }
 }
 </script>

@@ -1,114 +1,135 @@
-var budgetModel = require('../models/budgetModel.js');
+var BudgetModel = require('../models/BudgetModel.js');
 
 /**
- * budgetController.js
+ * BudgetController.js
  *
- * @description :: Server-side logic for managing budgets.
+ * @description :: Server-side logic for managing Budgets.
  */
 module.exports = {
-
+    
     /**
-     * budgetController.list()
+     * BudgetController.showByUser()
      */
-    list: function (req, res) {
-        budgetModel.find(function (err, budgets) {
+    showByUser: function (req, res) {
+        var userId = req.params.userId;
+        BudgetModel.find({user: userId}, function (err, Budget) {
             if (err) {
                 return res.status(500).json({
-                    message: 'Error when getting budget.',
+                    message: 'Error when getting Budget.',
                     error: err
                 });
             }
-            return res.json(budgets);
+            if (!Budget) {
+                return res.status(404).json({
+                    message: 'No such Budget that matches User'
+                });
+            }
+            return res.json(Budget);
         });
     },
 
     /**
-     * budgetController.show()
+     * BudgetController.list()
+     */
+    list: function (req, res) {
+        BudgetModel.find(function (err, Budgets) {
+            if (err) {
+                return res.status(500).json({
+                    message: 'Error when getting Budget.',
+                    error: err
+                });
+            }
+            return res.json(Budgets);
+        });
+    },
+
+    /**
+     * BudgetController.show()
      */
     show: function (req, res) {
         var id = req.params.id;
-        budgetModel.findOne({_id: id}, function (err, budget) {
+        BudgetModel.findOne({_id: id}, function (err, Budget) {
             if (err) {
                 return res.status(500).json({
-                    message: 'Error when getting budget.',
+                    message: 'Error when getting Budget.',
                     error: err
                 });
             }
-            if (!budget) {
+            if (!Budget) {
                 return res.status(404).json({
-                    message: 'No such budget'
+                    message: 'No such Budget'
                 });
             }
-            return res.json(budget);
+            return res.json(Budget);
         });
     },
 
     /**
-     * budgetController.create()
+     * BudgetController.create()
      */
     create: function (req, res) {
-        var budget = new budgetModel({
+        var Budget = new BudgetModel({
 			user : req.body.user,
 			cash : req.body.cash,
 			card : req.body.card
 
         });
 
-        budget.save(function (err, budget) {
+        Budget.save(function (err, Budget) {
             if (err) {
                 return res.status(500).json({
-                    message: 'Error when creating budget',
+                    message: 'Error when creating Budget',
                     error: err
                 });
             }
-            return res.status(201).json(budget);
+            return res.status(201).json(Budget);
         });
     },
 
     /**
-     * budgetController.update()
+     * BudgetController.update()
      */
     update: function (req, res) {
         var id = req.params.id;
-        budgetModel.findOne({_id: id}, function (err, budget) {
+        BudgetModel.findOne({_id: id}, function (err, Budget) {
             if (err) {
                 return res.status(500).json({
-                    message: 'Error when getting budget',
+                    message: 'Error when getting Budget',
                     error: err
                 });
             }
-            if (!budget) {
+            if (!Budget) {
                 return res.status(404).json({
-                    message: 'No such budget'
+                    message: 'No such Budget'
                 });
             }
 
-            budget.user = req.body.user ? req.body.user : budget.user;
-			budget.cash = req.body.cash ? req.body.cash : budget.cash;
-			budget.card = req.body.card ? req.body.card : budget.card;
+            Budget.user = req.body.user ? req.body.user : Budget.user;
+			Budget.cash = req.body.cash ? req.body.cash : Budget.cash;
+			Budget.card = req.body.card ? req.body.card : Budget.card;
 			
-            budget.save(function (err, budget) {
+            Budget.save(function (err, Budget) {
                 if (err) {
                     return res.status(500).json({
-                        message: 'Error when updating budget.',
+                        message: 'Error when updating Budget.',
                         error: err
                     });
                 }
 
-                return res.json(budget);
+                return res.json(Budget);
             });
         });
     },
 
     /**
-     * budgetController.remove()
+     * BudgetController.remove()
      */
     remove: function (req, res) {
         var id = req.params.id;
-        budgetModel.findByIdAndRemove(id, function (err, budget) {
+        BudgetModel.findByIdAndRemove(id, function (err, Budget) {
             if (err) {
                 return res.status(500).json({
-                    message: 'Error when deleting the budget.',
+                    message: 'Error when deleting the Budget.',
                     error: err
                 });
             }

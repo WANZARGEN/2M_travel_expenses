@@ -12,7 +12,7 @@
       <input class='w-180' type="time" v-model="time"><br>
 
       <label class='w-90'>Amount</label>
-      <input class='w-90' type='number' v-model="amount" placeholder="amount">&nbsp;
+      <input class='w-90' type='number' v-model="amount">&nbsp;
       <select class='w-90' v-model="unit">
         <option selected value="1">HKD</option>
         <option value="2">KRW</option>
@@ -23,8 +23,9 @@
       <label class='w-90'>Payer</label>
       <select class='w-90' v-model="payer">
         <option selected value="1">All</option>
-        <option value="2">JOOAH</option>
-        <option value="3">WANJIN</option>
+        <option v-for='(item, index) in userList' v-bind:value="item._id">
+          {{ item.name }}
+        </option>
       </select>
       <br>
 
@@ -39,9 +40,11 @@
       <label class='w-90'>Charged to</label>
       <select class='w-90' v-model="chargedTo">
         <option selected value="1">All</option>
-        <option value="2">JOOAH</option>
-        <option value="3">WANJIN</option>
-      </select><br>
+        <option v-for='(item, index) in userList' v-bind:value="item._id">
+          {{ item.name }}
+        </option>
+      </select>
+      <br>
 
       <label class='w-90'>Comment</label>
       <textarea class='w-180' v-model="comment" placeholder="any comment"></textarea>
@@ -71,13 +74,31 @@ const baseURI = 'http://localhost:3000';
 
 
 var save = function() {
-  console.log('date: ', this.date)
+  let payer = []
+  if(this.payer == 1) {
+    for(let i = 0; i < this.userList.length; i++) {
+      payer.push(this.userList[i]._id)
+    }
+  } else payer.push(this.payer)
+
+  let chargedTo = []
+  if(this.chargedTo == 1) {
+    for(let i = 0; i < this.userList.length; i++) {
+      chargedTo.push(this.userList[i]._id)
+    }
+  } else chargedTo.push(this.chargedTo)
+
+  let method = ''
+  if(this.method == 1) method = 'cash'
+  else if(this.method == 2) method = 'card'
+  else method = 'transfer'
+
   this.$http.post(`${baseURI}/api/expense`, {
     comment: this.comment,
     amount: this.amount,
-    payer: this.payer,
-    chargedTo: this.chargedTo,
-    method: this.method,
+    payer: payer,
+    chargedTo: chargedTo,
+    method: method,
     unit: this.unit,
     date: this.date,
     time: this.time
@@ -86,7 +107,7 @@ var save = function() {
     alert('Succeed!')
     this.date = moment(new Date()).format('YYYY-MM-DD')
     this.time = moment(new Date()).format('HH:mm')
-    this.amount = '0'
+    this.amount = 0
     this.comment = ''
     this.payer = '1'
     this.chargedTo = '1'
@@ -99,7 +120,24 @@ var save = function() {
 
 goList = function() {
   this.$router.push('/list') 
+},
+
+listUser = function(_this) {
+  if(!_this) _this = this
+  _this.$http.get(`${baseURI}/api/user`)
+  .then((result) => {
+    _this.userList = result.data
+    console.log('userList: ', _this.userList)
+  }).catch((err) => {
+    console.error(err)
+  })
 }
+
+
+
+/*------------------------------------------------------*
+ * Export
+ *------------------------------------------------------*/
 
 export default {
   name: 'app',
@@ -109,17 +147,21 @@ export default {
       owner: "made by WANZARGEN ",
       date: moment(new Date()).format('YYYY-MM-DD'),
       time: moment(new Date()).format('HH:mm'),
-      amount: '0',
+      amount: 0,
       comment: '',
       payer: '1',
       chargedTo: '1',
       unit: '1',
-      method: '1'
+      method: '1',
+      userList: []
     }
   },
   methods: {
     save: save,
     goList: goList
+  },
+  mounted() {
+    listUser(this)
   }
 }
 </script>

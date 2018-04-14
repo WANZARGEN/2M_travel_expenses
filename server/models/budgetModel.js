@@ -1,13 +1,13 @@
 var mongoose = require('mongoose');
 var Schema   = mongoose.Schema;
 
-var budgetSchema = new Schema({
+var BudgetSchema = new Schema({
 	'user' : {
 	 	type: Schema.Types.ObjectId,
-	 	ref: 'user'
+	 	ref: 'User'
 	},
 	'cash' : Number,
 	'card' : Number
 });
 
-module.exports = mongoose.model('budget', budgetSchema, 'Budget');
+module.exports = mongoose.model('Budget', BudgetSchema, 'Budget');

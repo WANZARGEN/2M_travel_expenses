@@ -38,8 +38,18 @@ export default {
       })
       .then((result) => {
         console.log(result.data)
-        alert('Welcome!')
-        this.$router.push('/login')
+        let userId = result.data._id
+        this.$http.post(`${baseURI}/api/budget`, {
+          user: userId,
+          cash: 0,
+          card: 0
+        })
+        .then((result) => {
+          alert('Welcome!')
+          this.$router.push('/login')
+        }).catch((err) => {
+          console.error(err)
+        })     
       }).catch((err) => {
         console.error(err)
       })     

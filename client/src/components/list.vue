@@ -9,8 +9,9 @@
       <label class='w-30'>&nbsp;Whoose: </label>
       <select  v-model="whose" v-on:change="onChangeWhose">
         <option selected value="1">All</option>
-        <option value="2">JOOAH</option>
-        <option value="3">WANJIN</option>
+        <option v-for='(item, index) in userList' v-bind:value="item._id">
+          {{ item.name }}
+        </option>
       </select>
 
       <button type='button' v-on:click="goAccount">Account Info</button>
@@ -40,14 +41,14 @@
       </thead>
 
       <tbody>
-        <tr v-for='(item, index) in list' 
+        <tr v-for='(item, index) in calculatedList' 
         v-on:click='selectItem(item._id, index, $event)'>
           <td>{{item.date}}<br>{{item.time}}</td>
           <td>{{item.amount}}</td>
           <td>{{item.comment}}</td>
-          <td>{{accum}}</td>
-          <td>{{balance}}</td>
-          <td>{{debt}}</td>
+          <td>{{item.accum}}</td>
+          <td>{{item.balance}}</td>
+          <td>{{item.debt}}</td>
         </tr>
       </tbody>
     </table>
@@ -76,12 +77,10 @@ const baseURI = 'http://localhost:3000';
 var selectCount = 0;
 
 var data = {
+      userList: [],
       whose: '1',
       unit: '1',
       list: [],
-      accum: 0,
-      balance: 0,
-      debt: 0,
       selectList: []
     }
 
@@ -158,6 +157,7 @@ del = function() {
         .then((result) => {
           deletedCount--
           if(deletedCount == selectCount) {
+            this.selectList = []
             this.$set(this.list)
           }
         }).catch((err) => {
@@ -169,11 +169,27 @@ del = function() {
 },
 
 goAccount = function() {
-  this.$router.push('/account') 
+  if(this.whose == 1) {
+    alert('Select user')
+    return
+  } else {
+    this.$router.push({ path: '/account', query: { userId: this.whose }}) 
+  }
 },
 
 goHome = function() {
   this.$router.push('/home') 
+},
+
+listUser = function(_this) {
+  if(!_this) _this = this
+  _this.$http.get(`${baseURI}/api/user`)
+  .then((result) => {
+    _this.userList = result.data
+    console.log('userList: ', _this.userList)
+  }).catch((err) => {
+    console.error(err)
+  })
 }
 
 
@@ -197,6 +213,22 @@ export default {
   }, 
   mounted() {
     getList(this)
+    listUser(this)
+  },
+  computed: {
+    calculatedList: function() {
+      return this.list.filter((item) => {
+        if(!item.accum) item.accum = 0
+        item.accum += item.amount
+
+        if(this.whose == 1) {
+          item.debt = '-'
+          item.balance = 0
+        }
+
+        return item
+      })
+    }
   }
 }
 </script>
