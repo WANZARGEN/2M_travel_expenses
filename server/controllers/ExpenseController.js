@@ -1,5 +1,5 @@
 var ExpenseModel = require('../models/ExpenseModel.js');
-
+var BudgetModel = require('../models/BudgetModel.js');
 /**
  * ExpenseController.js
  *
@@ -7,20 +7,6 @@ var ExpenseModel = require('../models/ExpenseModel.js');
  */
 module.exports = {
 
-    /**
-     * ExpenseController.listWithBalance()
-     */
-    listWithBalance: function (req, res) {
-        ExpenseModel.find(function (err, Expenses) {
-            if (err) {
-                return res.status(500).json({
-                    message: 'Error when getting Expense.',
-                    error: err
-                });
-            }
-            return res.json(Expenses);
-        });
-    },
 
     /**
      * ExpenseController.list()

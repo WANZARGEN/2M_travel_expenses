@@ -5,7 +5,7 @@ var BudgetController = require('../controllers/BudgetController.js');
 /*
  * GET
  */
-router.get('/show/:userId', BudgetController.showByUser);
+router.get('/balance/:userId', BudgetController.showByUser);
 
 /*
  * GET

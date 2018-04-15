@@ -1,4 +1,5 @@
 var userModel = require('../models/UserModel.js');
+var BudgetModel = require('../models/BudgetModel.js');
 
 /**
  * userController.js
@@ -6,6 +7,47 @@ var userModel = require('../models/UserModel.js');
  * @description :: Server-side logic for managing users.
  */
 module.exports = {
+
+    /**
+     * userController.listWithBudget()
+     */
+    listWithBudget: function (req, res) {
+        userModel.find(function (err, users) {
+            if (err) {
+                return res.status(500).json({
+                    message: 'Error when getting user.',
+                    error: err
+                });
+            }
+
+            BudgetModel.find(function (err, Budget) {
+                if (err) {
+                    return res.status(500).json({
+                        message: 'Error when getting Budget.',
+                        error: err
+                    });
+                }
+
+                let result = []
+                Budget.forEach((b) => {
+                    let bid = b.user.toString()
+                    users.forEach((u) => {
+                        let uid = u._id.toString()
+                        if(bid.toString() == uid.toString()) {
+                            let obj = {}
+                            obj._id = u._id
+                            obj.name = u.name
+                            obj.cash = b.cash
+                            obj.card = b.card
+                            result.push(obj)
+                        }
+                    })
+                })
+                
+                return res.json(result)
+            });
+        });
+    },
 
     /**
      * userController.login()

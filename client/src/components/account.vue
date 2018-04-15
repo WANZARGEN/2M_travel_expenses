@@ -33,14 +33,19 @@
       <input class='w-60' type='number' v-model="cash">
       <br>
       <br>
+      <!--
       <label class='w-90'>Balance</label>
       <input class='w-90' type='number' readonly v-model="balance">
       <br>
+      -->
     </div>
     
     <br>
     <br>
     <button type='button' v-on:click="save">Save</button>
+    <br>
+    <br>
+    <button type='button' v-on:click="goHome">Go Home</button>
     <br>
     <br>
     <button type='button' v-on:click="goList">Go List</button>
@@ -90,9 +95,13 @@ goList = function() {
   this.$router.push('/list') 
 },
 
+goHome = function() {
+  this.$router.push('/home') 
+},
+
 getBudget = function(_this) {
   if(_this == undefined) _this = this
-  _this.$http.get(`${baseURI}/api/budget/show/` + _this.userId)
+  _this.$http.get(`${baseURI}/api/budget/balance/` + _this.userId)
   .then((result) => {
       _this.card = result.data[0].card
       _this.cash = result.data[0].cash
@@ -134,6 +143,7 @@ export default {
   methods: {
     save: save,
     goList: goList,
+    goHome: goHome,
     onChangeUnit: onChangeUnit,
     onChangeWhose: onChangeWhose
   },

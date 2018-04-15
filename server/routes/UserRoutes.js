@@ -15,6 +15,11 @@ router.get('/', UserController.list);
 /*
  * GET
  */
+router.get('/all', UserController.listWithBudget);
+
+/*
+ * GET
+ */
 router.get('/:id', UserController.show);
 
 /*

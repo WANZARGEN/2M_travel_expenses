@@ -46,7 +46,7 @@ export default {
         })
         .then((result) => {
           alert('Welcome!')
-          this.$router.push('/login')
+          this.$router.push({ path: '/account', query: { userId: result.data.user }})
         }).catch((err) => {
           console.error(err)
         })     

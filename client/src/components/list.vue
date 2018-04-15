@@ -34,21 +34,36 @@
           <th>Date</th>
           <th>Amount</th>
           <th>Comment</th>
-          <th>Accum.</th>
+          <!-- <th>Accum.</th> -->
           <th>Bal.</th>
           <th>Debt</th>
+          <th>Payer</th>
+          <th>Debtor</th>
         </tr>
       </thead>
 
       <tbody>
+        <tr class='summary'>
+          <td>-</td>
+          <td>{{accum}}</td>
+          <td>-</td>
+          <!-- <td>-</td> -->
+          <td>{{balance}}</td>
+          <td>{{debt}}</td>
+          <td>-</td>
+          <td>-</td>
+        </tr>
+
         <tr v-for='(item, index) in calculatedList' 
         v-on:click='selectItem(item._id, index, $event)'>
-          <td>{{item.date}}<br>{{item.time}}</td>
+          <td>{{item.date}}</td>
           <td>{{item.amount}}</td>
           <td>{{item.comment}}</td>
-          <td>{{item.accum}}</td>
+          <!-- <td>{{item.accum}}</td> -->
           <td>{{item.balance}}</td>
           <td>{{item.debt}}</td>
+          <td>{{item.payer.name}}</td>
+          <td>{{item.chargedTo.name}}</td>
         </tr>
       </tbody>
     </table>
@@ -81,7 +96,10 @@ var data = {
       whose: '1',
       unit: '1',
       list: [],
-      selectList: []
+      selectList: [],
+      balance: 0,
+      accum: null,
+      debt: 0
     }
 
 /*------------------------------------------------------*
@@ -91,15 +109,42 @@ var getList = function(_this) {
   if(_this == undefined) _this = this
   _this.$http.get(`${baseURI}/api/expense`)
   .then((result) => {
-    _this.list = result.data
-    console.log(result)
+    getBalance(_this, result.data)
+  }).catch((err) => {
+    console.error(err)
+  })     
+},
+
+getBalance = function(_this, list) {
+  _this.$http.get(`${baseURI}/api/budget`)
+  .then((result) => {
+    let bal = result.data
+    _this.balance = 0
+    _this.accum = 0
+    _this.debt = 0
+    if(_this.whose == 1) {
+      for(let i = 0; i < bal.length; i++) {
+        _this.balance += bal[i].cash
+        _this.balance += bal[i].card
+      }
+    } else {
+      for(let i = 0; i < bal.length; i++) {
+        if(_this.whose == bal[i].user) {
+          _this.balance += bal[i].cash
+          _this.balance += bal[i].card
+          break;
+        }
+      }
+    }
+    if(list != undefined) _this.list = list
   }).catch((err) => {
     console.error(err)
   })     
 },
 
 onChangeWhose = function() {
-
+  this.selectList = []
+  getBalance(this, undefined)
 },
 
 onChangeUnit = function() {
@@ -212,18 +257,74 @@ export default {
     goAccount: goAccount
   }, 
   mounted() {
-    getList(this)
     listUser(this)
+    getList(this)
   },
   computed: {
     calculatedList: function() {
       return this.list.filter((item) => {
-        if(!item.accum) item.accum = 0
-        item.accum += item.amount
+        //init
+        let payer, debtor
+        if(this.accum == null) {
+          this.accum = 0
+          item.accum = 0
+          item.balance = 0
+        }
 
+        //date
+        item.date = moment(new Date(item.date)).format('MM/DD')
+
+        //accum
+        this.accum += item.amount
+        item.accum = this.accum
+
+        //balance
+        this.balance -= item.amount
+        item.balance = this.balance
+
+        //payer
+        if(item.payer.length == 2) item.payer.name = 'All'
+        else {
+          for(let i = 0; i < this.userList.length; i++) {
+            if(this.userList[i]._id == item.payer) {
+              item.payer.name = this.userList[i].name
+              item.payer.id = item.payer
+              break;
+            }
+          }
+        }
+
+        //debtor
+        if(item.chargedTo.length == 2) item.chargedTo.name = 'All'
+        else {
+          for(let i = 0; i < this.userList.length; i++) {
+            if(this.userList[i]._id == item.chargedTo) {
+              item.chargedTo.name = this.userList[i].name
+              item.chargedTo.id = item.chargedTo
+              break;
+            }
+          }
+        }
+
+        //debt
         if(this.whose == 1) {
           item.debt = '-'
-          item.balance = 0
+          this.debt = '-'
+        } else {
+          if(item.payer == 'All') {
+            if(item.chargedTo == 'All') item.debt = 0
+            else if(item.chargedTo.id == this.whose) item.debt = item.amount / 2
+            else item.debt = -item.amount / 2
+          } else if(item.payer == this.whose) {
+            if(item.chargedTo == 'All') item.debt = -item.amunt / 2
+            else if(item.chargedTo.id == this.whose) item.debt = 0
+            else item.debt = -item.amount
+          } else {
+            if(item.chargedTo == 'All') item.debt = item.amunt / 2
+            else if(item.chargedTo.id == this.whose) item.debt = item.amount
+            else item.debt = 0
+          }
+          this.debt += item.debt
         }
 
         return item
