@@ -22,8 +22,9 @@
       <label class='w-90'>Payer</label>
       <select class='w-90' v-model="payer">
         <option selected value="1">All</option>
-        <option value="2">JOOAH</option>
-        <option value="3">WANJIN</option>
+        <option v-for='(item, index) in userList' v-bind:key='index' v-bind:value="item._id">
+          {{ item.name }}
+        </option>
       </select>
       <br>
 
@@ -38,9 +39,11 @@
       <label class='w-90'>Charged to</label>
       <select class='w-90' v-model="chargedTo">
         <option selected value="1">All</option>
-        <option value="2">JOOAH</option>
-        <option value="3">WANJIN</option>
-      </select><br>
+        <option v-for='(item, index) in userList' v-bind:key='index' v-bind:value="item._id">
+          {{ item.name }}
+        </option>
+      </select>
+      <br>
 
       <label class='w-90'>Comment</label>
       <textarea class='w-180' v-model="comment" placeholder="any comment"></textarea>
@@ -55,11 +58,12 @@
 
   <br><br><br><br>
   
-
-
 </div>
 </template>
 
+<!--==================================================================================-->
+<!--                                     script                                       -->
+<!--==================================================================================-->
 
 <script>
 var moment = require('moment');
@@ -67,9 +71,45 @@ moment().format();
 
 const baseURI = 'http://localhost:3000';
 
+/*------------------------------------------------------*
+ * Data
+ *------------------------------------------------------*/
+var data = {
+      date: moment(new Date()).format('YYYY-MM-DD'),
+      time: moment(new Date()).format('HH:mm'),
+      amount: '0',
+      comment: '',
+      payer: null,
+      chargedTo: null,
+      unit: '1',
+      method: '1',
+      id: null,
+      userList: []
+    }
 
-function save() {
-  console.log('date: ', this.date)
+/*------------------------------------------------------*
+ * Functions
+ *------------------------------------------------------*/
+var save = function() {
+  let payer = []
+  if(this.payer == 1) {
+    for(let i = 0; i < this.userList.length; i++) {
+      payer.push(this.userList[i]._id)
+    }
+  } else payer.push(this.payer)
+
+  let chargedTo = []
+  if(this.chargedTo == 1) {
+    for(let i = 0; i < this.userList.length; i++) {
+      chargedTo.push(this.userList[i]._id)
+    }
+  } else chargedTo.push(this.chargedTo)
+
+  let method = ''
+  if(this.method == 1) method = 'cash'
+  else if(this.method == 2) method = 'card'
+  else method = 'transfer'
+
   this.$http.put(`${baseURI}/api/expense/` + this.id, {
     comment: this.comment,
     amount: this.amount,
@@ -86,21 +126,31 @@ function save() {
   }).catch((err) => {
     console.error(err)
   })     
-}
+},
 
-function goList() {
+goList = function() {
   this.$router.push('/list') 
-}
+},
 
-function getDetail(_this) {
+getDetail = function(_this) {
   if(_this == undefined) _this = this
   _this.$http.get(`${baseURI}/api/expense/` + _this.id)
   .then((result) => {
+    let payer = result.data.payer
+    if(payer.length == 2) _this.payer = '1'
+    else _this.payer = payer[0]
+
+    let chargedTo = result.data.chargedTo
+    if(chargedTo.length == 2) _this.chargedTo = '1'
+    else _this.chargedTo = chargedTo[0]
+
+    let method = result.data.method
+    if(method == 'cash') _this.method = 1
+    else if(method == 'card') _this.method = 2
+    else _this.method = 3
+
     _this.comment = result.data.comment
     _this.amount = result.data.amount
-    _this.payer = result.data.payer
-    _this.chargedTo = result.data.chargedTo
-    _this.method = result.data.method
     _this.unit = result.data.unit
     _this.date = result.data.date
     _this.time = result.data.time
@@ -109,22 +159,26 @@ function getDetail(_this) {
   }).catch((err) => {
     console.error(err)
   })     
+},
+
+listUser = function(_this) {
+  if(!_this) _this = this
+  _this.$http.get(`${baseURI}/api/user`)
+  .then((result) => {
+    _this.userList = result.data
+    getDetail(_this)
+  }).catch((err) => {
+    console.error(err)
+  })
 }
 
+/*------------------------------------------------------*
+ * Export
+ *------------------------------------------------------*/
 export default {
   name: 'app',
   data: function() {
-    return {
-      date: moment(new Date()).format('YYYY-MM-DD'),
-      time: moment(new Date()).format('HH:mm'),
-      amount: '0',
-      comment: '',
-      payer: '1',
-      chargedTo: '1',
-      unit: '1',
-      method: '1',
-      id: null
-    }
+    return data
   },
   methods: {
     save: save,
@@ -134,7 +188,7 @@ export default {
     this.id = this.$route.query.id
   },
   mounted() {
-    getDetail(this)
+    listUser(this)
   }
 }
 </script>

@@ -14,7 +14,8 @@
     "es6-promise": "^4.2.4",
     "moment": "^2.21.0",
     "vue": "^2.5.2",
-    "vue-router": "^3.0.1"
+    "vue-router": "^3.0.1",
+    "vue2-filters": "^0.3.0"
   },
   "devDependencies": {
     "autoprefixer": "^7.1.2",

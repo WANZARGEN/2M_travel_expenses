@@ -7,7 +7,7 @@
     <div>
       <label class='w-30'>&nbsp;Whoose: </label>
       <select  v-model="whose" v-on:change="onChangeWhose">
-        <option v-for='(item, index) in userList' v-bind:value="item._id">
+        <option v-for='(item, index) in userList' v-bind:key='index' v-bind:value="item._id">
           {{ item.name }}
         </option>
       </select>
@@ -26,13 +26,12 @@
       <label class='w-90'>Budget</label>
       <input class='w-90' type='number' readonly v-model="budget">
       <br>
-      <label class='w-90'></label>
+      <br>
+      <!-- <label class='w-90'></label>
       <label >Card</label>
-      <input class='w-60' type='number' v-model="card">&nbsp;
-      <label>Cash</label>
-      <input class='w-60' type='number' v-model="cash">
-      <br>
-      <br>
+      <input class='w-60' type='number' v-model="card">&nbsp; -->
+      <label class='w-90'>Cash</label>
+      <input class='w-60' type='number' v-model="addedMoney"> <button type='button' v-on:click="save">Add</button>
       <!--
       <label class='w-90'>Balance</label>
       <input class='w-90' type='number' readonly v-model="balance">
@@ -40,9 +39,6 @@
       -->
     </div>
     
-    <br>
-    <br>
-    <button type='button' v-on:click="save">Save</button>
     <br>
     <br>
     <button type='button' v-on:click="goHome">Go Home</button>
@@ -71,6 +67,7 @@ var data = {
       budget: 0,
       card: 0,
       cash: 0,
+      addedMoney: 0,
       unit: '1',
       userId: null,
       whose: this.userId,
@@ -80,12 +77,15 @@ var data = {
 
 
 var save = function() {
+  this.cash = this.cash + parseInt(this.addedMoney)
+  this.addedMoney = 0
   this.$http.put(`${baseURI}/api/budget/` + this.budgetId, {
     cash: this.cash,
     card: this.card
   })
   .then((result) => {
     alert('Updated!')
+    this.budget = this.card + this.cash
   }).catch((err) => {
     console.error(err)
   })     

@@ -12,8 +12,11 @@ module.exports = {
      * ExpenseController.list()
      */
     list: function (req, res) {
+        console.log(req.params.sort)
+        let sort = req.params.sort != undefined ? req.params.sort : '-date -time';
+        console.log(sort)
         console.log('req.session: ', req.session)
-        ExpenseModel.find(function (err, Expenses) {
+        ExpenseModel.find(null, null, { sort: sort }, function (err, Expenses) {
             if (err) {
                 return res.status(500).json({
                     message: 'Error when getting Expense.',

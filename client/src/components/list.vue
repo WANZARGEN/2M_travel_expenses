@@ -9,12 +9,16 @@
       <label class='w-30'>&nbsp;Whoose: </label>
       <select  v-model="whose" v-on:change="onChangeWhose">
         <option selected value="1">All</option>
-        <option v-for='(item, index) in userList' v-bind:value="item._id">
+        <option v-for='(item, index) in userList' v-bind:key='index' v-bind:value="item._id">
           {{ item.name }}
         </option>
       </select>
 
       <button type='button' v-on:click="goAccount">Account Info</button>
+      <!-- <br>
+      <label class='w-30'>&nbsp;Range: </label>
+      <input class='date' type='date' v-model="startDate"> ~ 
+      <input class='date' type='date' v-model="endDate"> -->
       <br>
       <br>
     </div>
@@ -31,37 +35,40 @@
     <table>
       <thead>
         <tr>
-          <th>Date</th>
-          <th>Amount</th>
-          <th>Comment</th>
+          <th v-on:click="sortBy('datetime')">Date</th>
+          <th v-on:click="sortBy('amount')">Amount</th>
+          <th v-on:click="sortBy('comment')">Comment</th>
           <!-- <th>Accum.</th> -->
-          <th>Bal.</th>
+          <th>Cash</th>
+          <th>Card</th>
           <th>Debt</th>
-          <th>Payer</th>
-          <th>Debtor</th>
+          <th v-on:click="sortBy('payer')">Payer</th>
+          <th v-on:click="sortBy('debtor')">Debtor</th>
         </tr>
       </thead>
 
       <tbody>
         <tr class='summary'>
           <td>-</td>
-          <td>{{accum}}</td>
+          <td>{{accum | currency(symbol, 0, { symbolOnLeft: true }) }}</td>
           <td>-</td>
           <!-- <td>-</td> -->
-          <td>{{balance}}</td>
-          <td>{{debt}}</td>
+          <td>{{cash | currency(symbol, 0, { symbolOnLeft: true }) }}</td>
+          <td>{{card | currency(symbol, 0, { symbolOnLeft: true }) }}</td>
+          <td>{{debt | currency(symbol, 0, { symbolOnLeft: true }) }}</td>
           <td>-</td>
           <td>-</td>
         </tr>
 
-        <tr v-for='(item, index) in calculatedList' 
+        <tr v-for='(item, index) in calculatedList' v-bind:key="index" 
         v-on:click='selectItem(item._id, index, $event)'>
           <td>{{item.date}}</td>
-          <td>{{item.amount}}</td>
+          <td>{{item.amount | currency('', 0, { symbolOnLeft: true }) }}</td>
           <td>{{item.comment}}</td>
           <!-- <td>{{item.accum}}</td> -->
-          <td>{{item.balance}}</td>
-          <td>{{item.debt}}</td>
+          <td>{{item.cash | currency('', 0, { symbolOnLeft: true }) }}</td>
+          <td>{{item.card | currency('', 0, { symbolOnLeft: true }) }}</td>
+          <td>{{item.debt | currency('', 0, { symbolOnLeft: true }) }}</td>
           <td>{{item.payer.name}}</td>
           <td>{{item.chargedTo.name}}</td>
         </tr>
@@ -82,32 +89,60 @@
 </div>
 </template>
 
+<!--==================================================================================-->
+<!--                                     script                                       -->
+<!--==================================================================================-->
 
 <script>
 var moment = require('moment');
 moment().format();
 
 const baseURI = 'http://localhost:3000';
+const exchangeURI = 'https://openexchangerates.org/api/';
+const appId = 'de0ac08850bb4c2a8eb573c120c5b74f'
 
 var selectCount = 0;
 
+/*------------------------------------------------------*
+ * Data
+ *------------------------------------------------------*/
 var data = {
       userList: [],
       whose: '1',
       unit: '1',
       list: [],
       selectList: [],
-      balance: 0,
+      cash: 0,
+      card: 0,
       accum: null,
-      debt: 0
+      debt: 0,
+      rate: {},// { 'yyyy-mm-dd': { HKD: ..., USD: ..., KRW: ... }, ... }
+      sort: 'datetime',
+      order: 'desc', // 'desc' or 'asc'
+      symbol: '$',
+      startDate: moment(new Date()).format('YYYY-MM-DD'),
+      endDate: moment(new Date()).format('YYYY-MM-DD')
     }
 
 /*------------------------------------------------------*
  * Functions
  *------------------------------------------------------*/
-var getList = function(_this) {
+var getExchangeRates = function(_this) {
+
   if(_this == undefined) _this = this
-  _this.$http.get(`${baseURI}/api/expense`)
+  _this.$http.get(`${exchangeURI}latest.json?app_id=${appId}`)
+  .then((result) => {
+    console.log('exchange rate: ', result)
+  }).catch((err) => {
+    console.error(err)
+  })     
+},
+
+getList = function(_this, sort) {
+  if(_this == undefined) _this = this
+  let uri = `${baseURI}/api/expense`
+  if(sort != undefined) uri += '/sort/' + sort
+  _this.$http.get(uri)
   .then((result) => {
     getBalance(_this, result.data)
   }).catch((err) => {
@@ -118,20 +153,21 @@ var getList = function(_this) {
 getBalance = function(_this, list) {
   _this.$http.get(`${baseURI}/api/budget`)
   .then((result) => {
-    let bal = result.data
-    _this.balance = 0
+    let res = result.data
+    _this.cash = 0
+    _this.card = 0
     _this.accum = 0
     _this.debt = 0
     if(_this.whose == 1) {
-      for(let i = 0; i < bal.length; i++) {
-        _this.balance += bal[i].cash
-        _this.balance += bal[i].card
+      for(let i = 0; i < res.length; i++) {
+        _this.cash += res[i].cash
+        _this.card += res[i].card
       }
     } else {
-      for(let i = 0; i < bal.length; i++) {
-        if(_this.whose == bal[i].user) {
-          _this.balance += bal[i].cash
-          _this.balance += bal[i].card
+      for(let i = 0; i < res.length; i++) {
+        if(_this.whose == res[i].user) {
+          _this.cash += res[i].cash
+          _this.card += res[i].card
           break;
         }
       }
@@ -142,13 +178,39 @@ getBalance = function(_this, list) {
   })     
 },
 
+sortBy = function(sort) {
+  if(sort == 'datetime') {
+    if(this.order == 'desc') {
+      this.order = 'asc'
+      sort = 'date time'
+    }
+    else {
+      this.order = 'desc'
+      sort = '-date -time'
+    }
+  } else if(this.sort == sort) {
+    if(this.order == 'desc') this.order = 'asc'
+    else {
+      this.order = 'desc'
+      sort = '-' + sort
+    }
+  } else {
+    this.sort = sort
+    this.order = 'desc'
+    sort = '-' + sort
+  }
+
+  getList(this, sort)
+},
+
 onChangeWhose = function() {
   this.selectList = []
   getBalance(this, undefined)
 },
 
 onChangeUnit = function() {
-
+  if(this.unit == 2) this.symbol = '₩'
+  else this.symbol = '$'
 },
 
 selectItem = function(id, idx, e) {
@@ -254,9 +316,11 @@ export default {
     del: del,
     goEdit: goEdit,
     goHome: goHome,
-    goAccount: goAccount
+    goAccount: goAccount,
+    sortBy: sortBy
   }, 
   mounted() {
+    getExchangeRates(this)
     listUser(this)
     getList(this)
   },
@@ -268,7 +332,8 @@ export default {
         if(this.accum == null) {
           this.accum = 0
           item.accum = 0
-          item.balance = 0
+          item.cash = 0
+          item.card = 0
         }
 
         //date
@@ -278,10 +343,16 @@ export default {
         this.accum += item.amount
         item.accum = this.accum
 
-        //balance
-        this.balance -= item.amount
-        item.balance = this.balance
-
+        //cash
+        if(item.method == 'cash') {
+          this.cash -= item.amount
+          item.cash = this.cash
+        } else if (item.method == 'card') {
+          this.card -= item.amount
+          item.card = this.card
+          item.cash = '-'
+        }
+        
         //payer
         if(item.payer.length == 2) item.payer.name = 'All'
         else {
@@ -336,7 +407,9 @@ export default {
 
 
 
-
+<!--==================================================================================-->
+<!--                                      style                                       -->
+<!--==================================================================================-->
 
 <style scoped>
 form {
@@ -417,5 +490,8 @@ table tr {
 }
 .btn.active {
   color: black;
+}
+input.date {
+  font-size: 0.8rem;
 }
 </style>

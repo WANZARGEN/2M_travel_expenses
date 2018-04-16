@@ -23,7 +23,7 @@
       <label class='w-90'>Payer</label>
       <select class='w-90' v-model="payer">
         <option selected value="1">All</option>
-        <option v-for='(item, index) in userList' v-bind:value="item._id">
+        <option v-for='(item, index) in userList' v-bind:key='index' v-bind:value="item._id">
           {{ item.name }}
         </option>
       </select>
@@ -40,7 +40,7 @@
       <label class='w-90'>Charged to</label>
       <select class='w-90' v-model="chargedTo">
         <option selected value="1">All</option>
-        <option v-for='(item, index) in userList' v-bind:value="item._id">
+        <option v-for='(item, index) in userList' v-bind:key='index' v-bind:value="item._id">
           {{ item.name }}
         </option>
       </select>
@@ -66,13 +66,38 @@
 </template>
 
 
+<!--==================================================================================-->
+<!--                                     script                                       -->
+<!--==================================================================================-->
 <script>
 var moment = require('moment');
 moment().format();
 
 const baseURI = 'http://localhost:3000';
+const exchangeURI = 'https://openexchangerates.org/api/';
+const appId = 'de0ac08850bb4c2a8eb573c120c5b74f'
 
 
+/*------------------------------------------------------*
+ * Data
+ *------------------------------------------------------*/
+var data = {
+      msg: "Let's go HK! WJ & JA",
+      owner: "made by WANZARGEN ",
+      date: moment(new Date()).format('YYYY-MM-DD'),
+      time: moment(new Date()).format('HH:mm'),
+      amount: 0,
+      comment: '',
+      payer: '1',
+      chargedTo: '1',
+      unit: '1',
+      method: '1',
+      userList: []
+    }
+
+/*------------------------------------------------------*
+ * Functions
+ *------------------------------------------------------*/
 var save = function() {
   let payer = []
   if(this.payer == 1) {
@@ -131,6 +156,17 @@ listUser = function(_this) {
   }).catch((err) => {
     console.error(err)
   })
+},
+
+getExchangeRates = function(_this) {
+
+  if(_this == undefined) _this = this
+  _this.$http.get(`${exchangeURI}latest.json?app_id=${appId}`)
+  .then((result) => {
+    console.log('exchange rate: ', result)
+  }).catch((err) => {
+    console.error(err)
+  })     
 }
 
 
@@ -142,19 +178,7 @@ listUser = function(_this) {
 export default {
   name: 'app',
   data: function() {
-    return {
-      msg: "Let's go HK! WJ & JA",
-      owner: "made by WANZARGEN ",
-      date: moment(new Date()).format('YYYY-MM-DD'),
-      time: moment(new Date()).format('HH:mm'),
-      amount: 0,
-      comment: '',
-      payer: '1',
-      chargedTo: '1',
-      unit: '1',
-      method: '1',
-      userList: []
-    }
+    return data
   },
   methods: {
     save: save,

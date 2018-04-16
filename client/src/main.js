@@ -4,6 +4,7 @@ import Vue from 'vue'
 import App from './App'
 import router from './router'
 import axios from 'axios'
+import Vue2Filters from 'vue2-filters'
 
 Vue.config.productionTip = false
 
@@ -12,6 +13,8 @@ axios.defaults.timeout = 5000
 axios.defaults.headers.post['Content-Type'] = 'application/charset=UTF-8'
 
 Vue.prototype.$http = axios
+
+Vue.use(Vue2Filters)
 
 /* eslint-disable no-new */
 new Vue({

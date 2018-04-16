@@ -7,6 +7,11 @@ var ExpenseController = require('../controllers/ExpenseController.js');
  */
 router.get('/', ExpenseController.list);
 
+/*
+ * GET
+ */
+router.get('/sort/:sort', ExpenseController.list);
+
 
 /*
  * GET
