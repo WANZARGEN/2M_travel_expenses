@@ -81,12 +81,16 @@
   <div class='opt-box'>
   <button class='btn delete-btn' type="button" v-on:click="del">Delete</button>
   <button class='btn edit-btn' type="button" v-on:click="goEdit">Edit</button>
-  <button class='btn' type="button" v-on:click="goHome">Go Home</button>
+  <button class='btn' type="button" v-on:click="goHome">Add</button>
   </div>
 
   <br><br><br><br>
 
+  <div class='loading-box' v-if='isLoading'>
+    <wave class='rotate-square2'></wave>
+  </div>
 </div>
+
 </template>
 
 <!--==================================================================================-->
@@ -94,6 +98,8 @@
 <!--==================================================================================-->
 
 <script>
+import {Wave} from 'vue-loading-spinner'
+
 var moment = require('moment');
 moment().format();
 
@@ -116,23 +122,26 @@ var data = {
       card: 0,
       accum: null,
       debt: 0,
-      rate: {},// { 'yyyy-mm-dd': { HKD: ..., USD: ..., KRW: ... }, ... }
+      rate: {},// { HKD: ..., USD: ..., KRW: ... }
       sort: 'datetime',
       order: 'desc', // 'desc' or 'asc'
       symbol: '$',
       startDate: moment(new Date()).format('YYYY-MM-DD'),
-      endDate: moment(new Date()).format('YYYY-MM-DD')
+      endDate: moment(new Date()).format('YYYY-MM-DD'),
+      isLoading: true
     }
 
 /*------------------------------------------------------*
  * Functions
  *------------------------------------------------------*/
 var getExchangeRates = function(_this) {
-
   if(_this == undefined) _this = this
   _this.$http.get(`${exchangeURI}latest.json?app_id=${appId}`)
   .then((result) => {
-    console.log('exchange rate: ', result)
+    _this.rate.HKD = result.data.rates.HKD
+    _this.rate.KRW = result.data.rates.KRW
+    _this.rate.USD = result.data.rates.USD
+    getList(_this)
   }).catch((err) => {
     console.error(err)
   })     
@@ -173,6 +182,7 @@ getBalance = function(_this, list) {
       }
     }
     if(list != undefined) _this.list = list
+    _this.isLoading = false
   }).catch((err) => {
     console.error(err)
   })     
@@ -308,6 +318,9 @@ export default {
   data: function() {
     return data
   },
+  components: {
+    Wave
+  },
   methods: {
     getList: getList,
     onChangeWhose: onChangeWhose,
@@ -320,9 +333,8 @@ export default {
     sortBy: sortBy
   }, 
   mounted() {
-    getExchangeRates(this)
     listUser(this)
-    getList(this)
+    getExchangeRates(this)
   },
   computed: {
     calculatedList: function() {
@@ -335,6 +347,18 @@ export default {
           item.cash = 0
           item.card = 0
         }
+
+        //amount
+        // if(item.unit == 1) {
+        //   if(this.unit == 2) item.amount = item.amount / this.rate.KRW * this.rate.HKD
+        //   else if(this.unit == 3) item.amount /= this.rate.HKD
+        // } else if(item.unit == 2) {
+        //   if(this.unit == 1) item.amount = item.amount / this.rate.HKD * this.rate.KRW
+        //   else if(this.unit == 3) item.amount /= this.rate.KRW
+        // } else {
+        //   if(this.unit == 1) item.amount *= this.rate.HKD
+        //   else if(this.unit == 2) item.amount *= this.rate.KRW
+        // }
 
         //date
         item.date = moment(new Date(item.date)).format('MM/DD')
@@ -453,6 +477,7 @@ form {
 
 
 #app {
+  position: relative;
   height: calc(100vh - 60px);
   overflow-y: auto;
   overflow-x: hidden;
@@ -494,4 +519,19 @@ table tr {
 input.date {
   font-size: 0.8rem;
 }
+.loading-box {
+  position: absolute;
+  z-index: 9999;
+  width: 100vw;
+  height: 100vh;
+  left: 0;
+  top: -60px;
+}
+.loading-box .rotate-square2 {
+  position: absolute;
+  left: 50%;
+  top: 60%;
+  transform: translate(-50%, -50%);
+}
+
 </style>
