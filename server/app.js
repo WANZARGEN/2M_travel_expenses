@@ -12,7 +12,7 @@ const MongoStore = require('connect-mongo')(session);
 const app = express();
 app.use(history());
 
-const indexRouter = require(path.join(__dirname, 'routes/index.js'));
+const indexRouter = require('./routes/index');
 
 app.use(logger('dev'));
 
