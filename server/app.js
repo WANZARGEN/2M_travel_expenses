@@ -12,18 +12,18 @@ const MongoStore = require('connect-mongo')(session);
 const app = express();
 app.use(history());
 
-const indexRouter = require('/server/routes/index');
+const indexRouter = require(path.join(__dirname, 'routes/index.js'));
 
 app.use(logger('dev'));
 
 // Session
 // app.use(cookieParser());
-app.use(session({
-  secret: '@#@$MYSIGN#@$#$',
-  resave: false,
-  saveUninitialized: true,
-  // store: new MongoStore({ url: process.env.MONGO_URI })
- }));
+// app.use(session({
+//   secret: '@#@$MYSIGN#@$#$',
+//   resave: false,
+//   saveUninitialized: true,
+//   store: new MongoStore({ url: 'mongodb://localhost/test-app' })
+//  }));
 
   
 
