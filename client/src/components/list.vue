@@ -42,8 +42,6 @@
           <th>Cash</th>
           <th>Card</th>
           <th>Debt</th>
-          <th v-on:click="sortBy('payer')">Payer</th>
-          <th v-on:click="sortBy('debtor')">Debtor</th>
         </tr>
       </thead>
 
@@ -56,8 +54,6 @@
           <td>{{cash | currency(symbol, 0, { symbolOnLeft: true }) }}</td>
           <td>{{card | currency(symbol, 0, { symbolOnLeft: true }) }}</td>
           <td>{{debt | currency(symbol, 0, { symbolOnLeft: true }) }}</td>
-          <td>-</td>
-          <td>-</td>
         </tr>
 
         <tr v-for='(item, index) in calculatedList' v-bind:key="index" 
@@ -69,8 +65,8 @@
           <td>{{item.cash | currency('', 0, { symbolOnLeft: true }) }}</td>
           <td>{{item.card | currency('', 0, { symbolOnLeft: true }) }}</td>
           <td>{{item.debt | currency('', 0, { symbolOnLeft: true }) }}</td>
-          <td>{{item.payer.name}}</td>
-          <td>{{item.chargedTo.name}}</td>
+          <!-- <td>{{item.payer.name}}</td>
+          <td>{{item.chargedTo.name}}</td> -->
         </tr>
       </tbody>
     </table>
@@ -87,7 +83,7 @@
   <br><br><br><br>
 
   <div class='loading-box' v-if='isLoading'>
-    <wave class='rotate-square2'></wave>
+    <circle10 class='rotate-square2'></circle10>
   </div>
 </div>
 
@@ -98,7 +94,7 @@
 <!--==================================================================================-->
 
 <script>
-import {Wave} from 'vue-loading-spinner'
+import {Circle10} from 'vue-loading-spinner'
 
 var moment = require('moment');
 moment().format();
@@ -319,7 +315,7 @@ export default {
     return data
   },
   components: {
-    Wave
+    Circle10
   },
   methods: {
     getList: getList,
@@ -343,22 +339,23 @@ export default {
         let payer, debtor
         if(this.accum == null) {
           this.accum = 0
+          this.card = 0
           item.accum = 0
           item.cash = 0
           item.card = 0
         }
 
         //amount
-        // if(item.unit == 1) {
-        //   if(this.unit == 2) item.amount = item.amount / this.rate.KRW * this.rate.HKD
-        //   else if(this.unit == 3) item.amount /= this.rate.HKD
-        // } else if(item.unit == 2) {
-        //   if(this.unit == 1) item.amount = item.amount / this.rate.HKD * this.rate.KRW
-        //   else if(this.unit == 3) item.amount /= this.rate.KRW
-        // } else {
-        //   if(this.unit == 1) item.amount *= this.rate.HKD
-        //   else if(this.unit == 2) item.amount *= this.rate.KRW
-        // }
+        if(item.unit == 1) {
+          if(this.unit == 2) item.amount = item.amount / this.rate.HKD * this.rate.KRW
+          else if(this.unit == 3) item.amount /= this.rate.HKD
+        } else if(item.unit == 2) {
+          if(this.unit == 1) item.amount = item.amount / this.rate.KRW * this.rate.HKD
+          else if(this.unit == 3) item.amount /= this.rate.KRW
+        } else {
+          if(this.unit == 1) item.amount *= this.rate.HKD
+          else if(this.unit == 2) item.amount *= this.rate.KRW
+        }
 
         //date
         item.date = moment(new Date(item.date)).format('MM/DD')
@@ -367,13 +364,13 @@ export default {
         this.accum += item.amount
         item.accum = this.accum
 
-        //cash
+        //cash or card
         if(item.method == 'cash') {
           this.cash -= item.amount
-          item.cash = this.cash
+          item.cash = item.amount
         } else if (item.method == 'card') {
           this.card -= item.amount
-          item.card = this.card
+          item.card = item.amount
           item.cash = '-'
         }
         
@@ -529,7 +526,7 @@ input.date {
 }
 .loading-box .rotate-square2 {
   position: absolute;
-  left: 50%;
+  left: 46%;
   top: 60%;
   transform: translate(-50%, -50%);
 }
