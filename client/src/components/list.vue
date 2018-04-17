@@ -124,7 +124,8 @@ var data = {
       symbol: '$',
       startDate: moment(new Date()).format('YYYY-MM-DD'),
       endDate: moment(new Date()).format('YYYY-MM-DD'),
-      isLoading: true
+      isLoading: true,
+      balance: {}
     }
 
 /*------------------------------------------------------*
@@ -163,6 +164,18 @@ getBalance = function(_this, list) {
     _this.card = 0
     _this.accum = 0
     _this.debt = 0
+
+    _this balance = { '1': { cash: 0, card: 0 }}
+    for(let i = 0; i < res.length; i++) {
+      if(_this balance['1']) {
+        _this balance['1'].cash += res[i].cash
+        _this balance['1'].card += res[i].card
+      } 
+      else _this balance['1'] = { cash: res[i].cash, card: res[i].card }
+
+      _this balance[res[i].user] = { cash: res[i].cash, card: res[i].card }
+    }
+    
     if(_this.whose == 1) {
       for(let i = 0; i < res.length; i++) {
         _this.cash += res[i].cash
@@ -215,6 +228,8 @@ onChangeWhose = function() {
 },
 
 onChangeUnit = function() {
+  this.card = 0
+  this.cash = this.balance[this.whose].cash
   if(this.unit == 2) this.symbol = '₩'
   else this.symbol = '$'
 },
