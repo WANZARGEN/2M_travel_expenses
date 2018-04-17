@@ -167,7 +167,7 @@ getBalance = function(_this, list) {
 
     _this.balance = { '1': { cash: 0, card: 0 }}
     for(let i = 0; i < res.length; i++) {
-      if(_this balance['1']) {
+      if(_this.balance['1']) {
         _this.balance['1'].cash += res[i].cash
         _this.balance['1'].card += res[i].card
       } 
