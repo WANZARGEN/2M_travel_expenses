@@ -69,7 +69,7 @@
 var moment = require('moment');
 moment().format();
 
-const baseURI = 'http://localhost:3000';
+const baseURI = 'http://13.125.169.219:3000';
 
 /*------------------------------------------------------*
  * Data

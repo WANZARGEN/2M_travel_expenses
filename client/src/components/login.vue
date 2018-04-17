@@ -31,7 +31,7 @@ export default {
   },
   methods: {
     login: function() {
-      const baseURI = 'http://localhost:3000';
+      const baseURI = 'http://13.125.169.219:3000';
       this.$http.post(`${baseURI}/api/user/login`, {
         name: this.name,
         password: this.password

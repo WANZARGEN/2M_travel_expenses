@@ -73,7 +73,7 @@
 var moment = require('moment');
 moment().format();
 
-const baseURI = 'http://localhost:3000';
+const baseURI = 'http://13.125.169.219:3000';
 const exchangeURI = 'https://openexchangerates.org/api/';
 const appId = 'de0ac08850bb4c2a8eb573c120c5b74f'
 
