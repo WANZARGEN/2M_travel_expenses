@@ -12,10 +12,6 @@ router.post('/login', UserController.login);
  */
 router.get('/', UserController.list);
 
-/*
- * GET
- */
-router.get('/all', UserController.listWithBudget);
 
 /*
  * GET
