@@ -165,15 +165,15 @@ getBalance = function(_this, list) {
     _this.accum = 0
     _this.debt = 0
 
-    _this balance = { '1': { cash: 0, card: 0 }}
+    _this.balance = { '1': { cash: 0, card: 0 }}
     for(let i = 0; i < res.length; i++) {
       if(_this balance['1']) {
-        _this balance['1'].cash += res[i].cash
-        _this balance['1'].card += res[i].card
+        _this.balance['1'].cash += res[i].cash
+        _this.balance['1'].card += res[i].card
       } 
-      else _this balance['1'] = { cash: res[i].cash, card: res[i].card }
+      else _this.balance['1'] = { cash: res[i].cash, card: res[i].card }
 
-      _this balance[res[i].user] = { cash: res[i].cash, card: res[i].card }
+      _this.balance[res[i].user] = { cash: res[i].cash, card: res[i].card }
     }
     
     if(_this.whose == 1) {
