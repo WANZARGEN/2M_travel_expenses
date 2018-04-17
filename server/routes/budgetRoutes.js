@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-var BudgetController = require('../controllers/BudgetController.js');
+var BudgetController = require('../controllers/budgetController.js');
 
 /*
  * GET

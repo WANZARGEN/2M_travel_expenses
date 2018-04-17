@@ -1,4 +1,4 @@
-var BudgetModel = require('../models/BudgetModel.js');
+var BudgetModel = require('../models/budgetModel.js');
 
 /**
  * BudgetController.js
