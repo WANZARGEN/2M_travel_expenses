@@ -6,7 +6,7 @@ var app = express();
 const userRouter = require('./UserRoutes');
 const travelRouter = require('./TravelRoutes');
 const expenseRouter = require('./ExpenseRoutes');
-const budgetRouter = require('./budgetRoutes');
+const budgetRouter = require('./BudgetRoutes.js');
 
 router.use('/user/', userRouter);
 router.use('/travel/', travelRouter);
