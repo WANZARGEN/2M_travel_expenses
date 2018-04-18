@@ -146,8 +146,6 @@ getList = function(_this, sort) {
   if(_this == undefined) _this = this
 
   _this.accum = 0
-  _this.card = 0
-  _this.cash = _this.balance[_this.whose].cash
   _this.debt = 0
   
   let uri = `${_this.$baseURI}/api/expense`
@@ -190,6 +188,10 @@ getBalance = function(_this, list) {
         }
       }
     }
+
+    _this.card = 0
+    _this.cash = _this.balance[_this.whose].cash
+    
     if(list != undefined) _this.list = list
     _this.isLoading = false
   }).catch((err) => {
