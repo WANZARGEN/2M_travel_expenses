@@ -542,6 +542,8 @@ table tr {
 }
 .opt-box .btn {
   width: 33%;
+  border: none;
+  box-shadow: none;
 }
 .delete-btn, .edit-btn {
   color: #a7a7a7;
