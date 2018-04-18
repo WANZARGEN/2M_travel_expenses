@@ -147,6 +147,7 @@ var getExchangeRates = function(_this) {
 },
 
 getList = function(_this, sort) {
+  console.log('baseURI: ', baseURI)
   if(_this == undefined) _this = this
   let uri = `${baseURI}/api/expense`
   if(sort != undefined) uri += '/sort/' + sort
