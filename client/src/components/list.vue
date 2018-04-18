@@ -218,7 +218,7 @@ sortBy = function(sort) {
 
 onChangeWhose = function() {
   this.selectList = []
-  getBalance(this, undefined)
+  getList(this)
 },
 
 onChangeUnit = function() {
