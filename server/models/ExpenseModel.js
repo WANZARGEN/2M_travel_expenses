@@ -10,7 +10,7 @@ const expenseSchema = new mongoose.Schema({
   payer: [{ type: Schema.Types.ObjectId, ref: 'User' }],
   chargedTo: [{ type: Schema.Types.ObjectId, ref: 'User' }],
   method: { type: String },
-  unit: { type: Number },
+  unit: { type: String },
   date: { type: String },
   time: { type: String }
 },

@@ -13,10 +13,8 @@
       </select>
 
       <label class='w-30'>&nbsp;Unit: </label>
-      <select v-model="unit" v-on:change="onChangeUnit">
-        <option selected value="1">HKD</option>
-        <option value="2">KRW</option>
-        <option value="3">USD</option>
+      <select v-model="unit">
+        <option selected value="HKD">HKD</option>
       </select>
     </div>
     <br>
@@ -60,7 +58,7 @@
 var moment = require('moment');
 moment().format();
 
-const baseURI = 'http://13.125.169.219:3000';
+const baseURI = process.env.baseURI;
 
 var data = {
       balance: 0,
@@ -68,7 +66,7 @@ var data = {
       card: 0,
       cash: 0,
       addedMoney: 0,
-      unit: '1',
+      unit: 'HKD',
       userId: null,
       whose: this.userId,
       userList: [],
@@ -113,11 +111,8 @@ getBudget = function(_this) {
 },
 
 onChangeWhose = function() {
-  
-},
-
-onChangeUnit = function() {
-
+  this.userId = this.whose
+  getBudget(this)
 },
 
 listUser = function(_this) {
@@ -144,7 +139,6 @@ export default {
     save: save,
     goList: goList,
     goHome: goHome,
-    onChangeUnit: onChangeUnit,
     onChangeWhose: onChangeWhose
   },
   created() {

@@ -8,7 +8,7 @@
     <div>
       <label class='w-30'>&nbsp;Whoose: </label>
       <select  v-model="whose" v-on:change="onChangeWhose">
-        <option selected value="1">All</option>
+        <option selected value="all">All</option>
         <option v-for='(item, index) in userList' v-bind:key='index' v-bind:value="item._id">
           {{ item.name }}
         </option>
@@ -26,9 +26,9 @@
     <div class='text-right'>
       <label class='w-30'>&nbsp;Unit: </label>
       <select v-model="unit" v-on:change="onChangeUnit">
-        <option selected value="1">HKD</option>
-        <option value="2">KRW</option>
-        <option value="3">USD</option>
+        <option selected value="HKD">HKD</option>
+        <option value="KRW">KRW</option>
+        <option value="USD">USD</option>
       </select>
     </div>
     
@@ -53,7 +53,8 @@
           <!-- <td>-</td> -->
           <td>{{cash | currency(symbol, 0, { symbolOnLeft: true }) }}</td>
           <td>{{card | currency(symbol, 0, { symbolOnLeft: true }) }}</td>
-          <td>{{debt | currency(symbol, 0, { symbolOnLeft: true }) }}</td>
+          <td v-if="debt == '-'">{{debt}}</td>
+          <td v-else>{{debt | currency(symbol, 0, { symbolOnLeft: true }) }}</td>
         </tr>
 
         <tr v-for='(item, index) in calculatedList' v-bind:key="index" 
@@ -64,7 +65,8 @@
           <!-- <td>{{item.accum}}</td> -->
           <td>{{item.cash | currency('', 0, { symbolOnLeft: true }) }}</td>
           <td>{{item.card | currency('', 0, { symbolOnLeft: true }) }}</td>
-          <td>{{item.debt | currency('', 0, { symbolOnLeft: true }) }}</td>
+          <td v-if="item.debt == '-'">{{item.debt}}</td>
+          <td v-else>{{item.debt | currency('', 0, { symbolOnLeft: true }) }}</td>
           <!-- <td>{{item.payer.name}}</td>
           <td>{{item.chargedTo.name}}</td> -->
         </tr>
@@ -99,9 +101,9 @@ import {Circle10} from 'vue-loading-spinner'
 var moment = require('moment');
 moment().format();
 
-const baseURI = 'http://13.125.169.219:3000';
-const exchangeURI = 'https://openexchangerates.org/api/';
-const appId = 'de0ac08850bb4c2a8eb573c120c5b74f'
+const baseURI = process.env.baseURI;
+const exchangeURI = process.env.exchangeURI;
+const appId = process.env.appId;
 
 var selectCount = 0;
 
@@ -110,13 +112,13 @@ var selectCount = 0;
  *------------------------------------------------------*/
 var data = {
       userList: [],
-      whose: '1',
-      unit: '1',
       list: [],
       selectList: [],
+      whose: 'all',
+      unit: 'HKD',
       cash: 0,
       card: 0,
-      accum: null,
+      accum: 0,
       debt: 0,
       rate: {},// { HKD: ..., USD: ..., KRW: ... }
       sort: 'datetime',
@@ -160,23 +162,19 @@ getBalance = function(_this, list) {
   _this.$http.get(`${baseURI}/api/budget`)
   .then((result) => {
     let res = result.data
-    _this.cash = 0
-    _this.card = 0
-    _this.accum = 0
-    _this.debt = 0
 
-    _this.balance = { '1': { cash: 0, card: 0 }}
+    _this.balance = { 'all': { cash: 0, card: 0 }}
     for(let i = 0; i < res.length; i++) {
-      if(_this.balance['1']) {
-        _this.balance['1'].cash += res[i].cash
-        _this.balance['1'].card += res[i].card
+      if(_this.balance['all']) {
+        _this.balance['all'].cash += res[i].cash
+        _this.balance['all'].card += res[i].card
       } 
-      else _this.balance['1'] = { cash: res[i].cash, card: res[i].card }
+      else _this.balance['all'] = { cash: res[i].cash, card: res[i].card }
 
       _this.balance[res[i].user] = { cash: res[i].cash, card: res[i].card }
     }
     
-    if(_this.whose == 1) {
+    if(_this.whose == 'all') {
       for(let i = 0; i < res.length; i++) {
         _this.cash += res[i].cash
         _this.card += res[i].card
@@ -228,10 +226,9 @@ onChangeWhose = function() {
 },
 
 onChangeUnit = function() {
-  this.card = 0
-  this.cash = this.balance[this.whose].cash
-  if(this.unit == 2) this.symbol = '₩'
+  if(this.unit == 'KRW') this.symbol = '₩'
   else this.symbol = '$'
+  getList(this)
 },
 
 selectItem = function(id, idx, e) {
@@ -283,10 +280,15 @@ del = function() {
         this.list.splice(i, 1)
         this.$http.delete(`${baseURI}/api/expense/` + this.selectList[i])
         .then((result) => {
-          deletedCount--
-          if(deletedCount == selectCount) {
+          if(--deletedCount == 0) {
+            let selectedElems = document.getElementsByClassName('selected')
+            let length = selectedElems.length
+            for(let j = 0; j < length; j++) {
+              selectedElems[0].className = selectedElems[0].className.replace('selected', " ").trim();
+            }
+            selectCount = 0
             this.selectList = []
-            this.$set(this.list)
+            getList(this)
           }
         }).catch((err) => {
           console.error(err)
@@ -297,7 +299,7 @@ del = function() {
 },
 
 goAccount = function() {
-  if(this.whose == 1) {
+  if(this.whose == 'all') {
     alert('Select user')
     return
   } else {
@@ -349,27 +351,29 @@ export default {
   },
   computed: {
     calculatedList: function() {
-      return this.list.filter((item) => {
+      return this.list.filter((item, index) => {
         //init
         let payer, debtor
-        if(this.accum == null) {
+        if(index == 0) {
           this.accum = 0
           this.card = 0
+          this.cash = this.balance[this.whose].cash
+          this.debt = 0
           item.accum = 0
           item.cash = 0
           item.card = 0
         }
 
         //amount
-        if(item.unit == 1) {
-          if(this.unit == 2) item.amount = item.amount / this.rate.HKD * this.rate.KRW
-          else if(this.unit == 3) item.amount /= this.rate.HKD
-        } else if(item.unit == 2) {
-          if(this.unit == 1) item.amount = item.amount / this.rate.KRW * this.rate.HKD
-          else if(this.unit == 3) item.amount /= this.rate.KRW
+        if(item.unit == 'HKD') {
+          if(this.unit == 'KRW') item.amount = item.amount / this.rate.HKD * this.rate.KRW
+          else if(this.unit == 'USD') item.amount /= this.rate.HKD
+        } else if(item.unit == 'KRW') {
+          if(this.unit == 'HKD') item.amount = item.amount / this.rate.KRW * this.rate.HKD
+          else if(this.unit == 'USD') item.amount /= this.rate.KRW
         } else {
-          if(this.unit == 1) item.amount *= this.rate.HKD
-          else if(this.unit == 2) item.amount *= this.rate.KRW
+          if(this.unit == 'HKD') item.amount *= this.rate.HKD
+          else if(this.unit == 'KRW') item.amount *= this.rate.KRW
         }
 
         //date
@@ -383,56 +387,77 @@ export default {
         if(item.method == 'cash') {
           this.cash -= item.amount
           item.cash = item.amount
+          item.card = 0
         } else if (item.method == 'card') {
           this.card -= item.amount
           item.card = item.amount
-          item.cash = '-'
+          item.cash = 0
         }
         
         //payer
-        if(item.payer.length == 2) item.payer.name = 'All'
+        if(item.payer.length == 2) {
+          item.payer = {}
+          item.payer.id = 'all'
+          item.payer.name = 'All'
+        } 
         else {
           for(let i = 0; i < this.userList.length; i++) {
-            if(this.userList[i]._id == item.payer) {
-              item.payer.name = this.userList[i].name
-              item.payer.id = item.payer
-              break;
+            for(let j = 0; j < item.payer.length; j++) {
+              if(this.userList[i]._id == item.payer[j]) {
+                item.payer = {}
+                item.payer.name = this.userList[i].name
+                item.payer.id = this.userList[i]._id
+                break;
+              }
             }
           }
         }
 
         //debtor
-        if(item.chargedTo.length == 2) item.chargedTo.name = 'All'
+        if(item.chargedTo.length == 2) {
+          item.chargedTo = {}
+          item.chargedTo.id = 'all'
+          item.chargedTo.name = 'All'
+        }
         else {
           for(let i = 0; i < this.userList.length; i++) {
-            if(this.userList[i]._id == item.chargedTo) {
-              item.chargedTo.name = this.userList[i].name
-              item.chargedTo.id = item.chargedTo
-              break;
+            for(let j = 0; j < item.payer.length; j++) {
+              if(this.userList[i]._id == item.chargedTo[j]) {
+                item.chargedTo = {}
+                item.chargedTo.name = this.userList[i].name
+                item.chargedTo.id = this.userList[i]._id
+                break;
+              }
             }
           }
         }
 
         //debt
-        if(this.whose == 1) {
+        if(this.whose == 'all') {
           item.debt = '-'
           this.debt = '-'
         } else {
-          if(item.payer == 'All') {
-            if(item.chargedTo == 'All') item.debt = 0
+          if(item.payer.id == 'all') {
+            if(item.chargedTo.id == 'all') item.debt = 0
             else if(item.chargedTo.id == this.whose) item.debt = item.amount / 2
-            else item.debt = -item.amount / 2
-          } else if(item.payer == this.whose) {
-            if(item.chargedTo == 'All') item.debt = -item.amunt / 2
+            else item.debt = item.amount / -2
+          } else if(item.payer.id == this.whose) {
+            if(item.chargedTo.id == 'all') item.debt = item.amount / -2
             else if(item.chargedTo.id == this.whose) item.debt = 0
             else item.debt = -item.amount
           } else {
-            if(item.chargedTo == 'All') item.debt = item.amunt / 2
+            if(item.chargedTo.id == 'all') item.debt = item.amount / 2
             else if(item.chargedTo.id == this.whose) item.debt = item.amount
             else item.debt = 0
           }
           this.debt += item.debt
         }
+
+        // console.log('======= ' + index + ' =======')
+        // console.log('item.payer: ', item.payer)
+        // console.log('item.chargedTo: ', item.chargedTo)
+        // console.log('item.debt: ', item.debt)
+        // console.log('=================')
 
         return item
       })

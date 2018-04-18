@@ -13,15 +13,15 @@
       <label class='w-90'>Amount</label>
       <input class='w-90' type='number' v-model="amount" placeholder="amount">&nbsp;
       <select class='w-90' v-model="unit">
-        <option selected value="1">HKD</option>
-        <option value="2">KRW</option>
-        <option value="3">USD</option>
+        <option selected value="HKD">HKD</option>
+        <option value="KRW">KRW</option>
+        <option value="USD">USD</option>
       </select>
      <br>
 
       <label class='w-90'>Payer</label>
       <select class='w-90' v-model="payer">
-        <option selected value="1">All</option>
+        <option selected value="all">All</option>
         <option v-for='(item, index) in userList' v-bind:key='index' v-bind:value="item._id">
           {{ item.name }}
         </option>
@@ -30,15 +30,15 @@
 
       <label class='w-90'>Method</label>
       <select class='w-90' v-model="method">
-        <option selected value="1">Cash</option>
-        <option value="2">Card</option>
-        <option value="3">Transfer</option>
+        <option selected value="cash">Cash</option>
+        <option value="card">Card</option>
+        <option value="transfer">Transfer</option>
       </select>
       <br>
 
       <label class='w-90'>Charged to</label>
       <select class='w-90' v-model="chargedTo">
-        <option selected value="1">All</option>
+        <option selected value="all">All</option>
         <option v-for='(item, index) in userList' v-bind:key='index' v-bind:value="item._id">
           {{ item.name }}
         </option>
@@ -69,7 +69,7 @@
 var moment = require('moment');
 moment().format();
 
-const baseURI = 'http://13.125.169.219:3000';
+const baseURI = process.env.baseURI;
 
 /*------------------------------------------------------*
  * Data
@@ -81,8 +81,8 @@ var data = {
       comment: '',
       payer: null,
       chargedTo: null,
-      unit: '1',
-      method: '1',
+      unit: 'HKD',
+      method: 'cash',
       id: null,
       userList: []
     }
@@ -92,33 +92,28 @@ var data = {
  *------------------------------------------------------*/
 var save = function() {
   let payer = []
-  if(this.payer == 1) {
+  if(this.payer == 'all') {
     for(let i = 0; i < this.userList.length; i++) {
       payer.push(this.userList[i]._id)
     }
   } else payer.push(this.payer)
 
   let chargedTo = []
-  if(this.chargedTo == 1) {
+  if(this.chargedTo == 'all') {
     for(let i = 0; i < this.userList.length; i++) {
       chargedTo.push(this.userList[i]._id)
     }
   } else chargedTo.push(this.chargedTo)
 
-  let method = ''
-  if(this.method == 1) method = 'cash'
-  else if(this.method == 2) method = 'card'
-  else method = 'transfer'
-
   this.$http.put(`${baseURI}/api/expense/` + this.id, {
     comment: this.comment,
     amount: this.amount,
-    payer: this.payer,
-    chargedTo: this.chargedTo,
+    payer: payer,
+    chargedTo: chargedTo,
     method: this.method,
     unit: this.unit,
-    date: this.date,
-    time: this.time
+    date: moment(new Date(this.date)).format('YYYY-MM-DD'),
+    time: moment(new Date(this.time)).format('HH:mm')
   })
   .then((result) => {
     alert('Updated!')
@@ -137,21 +132,17 @@ getDetail = function(_this) {
   _this.$http.get(`${baseURI}/api/expense/` + _this.id)
   .then((result) => {
     let payer = result.data.payer
-    if(payer.length == 2) _this.payer = '1'
+    if(payer.length == 2) _this.payer = 'all'
     else _this.payer = payer[0]
 
     let chargedTo = result.data.chargedTo
-    if(chargedTo.length == 2) _this.chargedTo = '1'
+    if(chargedTo.length == 2) _this.chargedTo = 'all'
     else _this.chargedTo = chargedTo[0]
-
-    let method = result.data.method
-    if(method == 'cash') _this.method = 1
-    else if(method == 'card') _this.method = 2
-    else _this.method = 3
 
     _this.comment = result.data.comment
     _this.amount = result.data.amount
     _this.unit = result.data.unit
+    _this.method = result.data.method
     _this.date = result.data.date
     _this.time = result.data.time
 

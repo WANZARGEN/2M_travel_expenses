@@ -14,15 +14,15 @@
       <label class='w-90'>Amount</label>
       <input class='w-90' type='number' v-model="amount">&nbsp;
       <select class='w-90' v-model="unit">
-        <option selected value="1">HKD</option>
-        <option value="2">KRW</option>
-        <option value="3">USD</option>
+        <option selected value="HKD">HKD</option>
+        <option value="KRW">KRW</option>
+        <option value="USD">USD</option>
       </select>
      <br>
 
       <label class='w-90'>Payer</label>
       <select class='w-90' v-model="payer">
-        <option selected value="1">All</option>
+        <option selected value="all">All</option>
         <option v-for='(item, index) in userList' v-bind:key='index' v-bind:value="item._id">
           {{ item.name }}
         </option>
@@ -31,15 +31,15 @@
 
       <label class='w-90'>Method</label>
       <select class='w-90' v-model="method">
-        <option selected value="1">Cash</option>
-        <option value="2">Card</option>
-        <option value="3">Transfer</option>
+        <option selected value="cash">Cash</option>
+        <option value="card">Card</option>
+        <option value="transfer">Transfer</option>
       </select>
       <br>
 
       <label class='w-90'>Charged to</label>
       <select class='w-90' v-model="chargedTo">
-        <option selected value="1">All</option>
+        <option selected value="all">All</option>
         <option v-for='(item, index) in userList' v-bind:key='index' v-bind:value="item._id">
           {{ item.name }}
         </option>
@@ -73,9 +73,7 @@
 var moment = require('moment');
 moment().format();
 
-const baseURI = 'http://13.125.169.219:3000';
-const exchangeURI = 'https://openexchangerates.org/api/';
-const appId = 'de0ac08850bb4c2a8eb573c120c5b74f'
+const baseURI = process.env.baseURI;
 
 
 /*------------------------------------------------------*
@@ -88,10 +86,10 @@ var data = {
       time: moment(new Date()).format('HH:mm'),
       amount: 0,
       comment: '',
-      payer: '1',
-      chargedTo: '1',
-      unit: '1',
-      method: '1',
+      payer: 'all',
+      chargedTo: 'all',
+      unit: 'HKD',
+      method: 'cash',
       userList: []
     }
 
@@ -100,33 +98,29 @@ var data = {
  *------------------------------------------------------*/
 var save = function() {
   let payer = []
-  if(this.payer == 1) {
+  if(this.payer == 'all') {
     for(let i = 0; i < this.userList.length; i++) {
       payer.push(this.userList[i]._id)
     }
   } else payer.push(this.payer)
 
   let chargedTo = []
-  if(this.chargedTo == 1) {
+  if(this.chargedTo == 'all') {
     for(let i = 0; i < this.userList.length; i++) {
       chargedTo.push(this.userList[i]._id)
     }
   } else chargedTo.push(this.chargedTo)
 
-  let method = ''
-  if(this.method == 1) method = 'cash'
-  else if(this.method == 2) method = 'card'
-  else method = 'transfer'
 
   this.$http.post(`${baseURI}/api/expense`, {
     comment: this.comment,
     amount: this.amount,
     payer: payer,
     chargedTo: chargedTo,
-    method: method,
+    method: this.method,
     unit: this.unit,
-    date: this.date,
-    time: this.time
+    date: moment(new Date(this.date)).format('YYYY-MM-DD'),
+    time: moment(new Date(this.time)).format('HH:mm')
   })
   .then((result) => {
     alert('Succeed!')
@@ -134,10 +128,10 @@ var save = function() {
     this.time = moment(new Date()).format('HH:mm')
     this.amount = 0
     this.comment = ''
-    this.payer = '1'
-    this.chargedTo = '1'
-    this.unit = '1'
-    this.method = '1'
+    this.payer = 'all'
+    this.chargedTo = 'all'
+    this.unit = 'HKD'
+    this.method = 'cash'
   }).catch((err) => {
     console.error(err)
   })     
@@ -156,17 +150,6 @@ listUser = function(_this) {
   }).catch((err) => {
     console.error(err)
   })
-},
-
-getExchangeRates = function(_this) {
-
-  if(_this == undefined) _this = this
-  _this.$http.get(`${exchangeURI}latest.json?app_id=${appId}`)
-  .then((result) => {
-    console.log('exchange rate: ', result)
-  }).catch((err) => {
-    console.error(err)
-  })     
 }
 
 

@@ -31,7 +31,8 @@ export default {
   },
   methods: {
     join: function() {
-      const baseURI = 'http://13.125.169.219:3000';
+      const baseURI = process.env.baseURI;
+
       this.$http.post(`${baseURI}/api/user`, {
         name: this.name,
         password: this.password
