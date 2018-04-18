@@ -73,9 +73,6 @@
 var moment = require('moment');
 moment().format();
 
-const baseURI = process.env.baseURI;
-
-
 /*------------------------------------------------------*
  * Data
  *------------------------------------------------------*/
@@ -112,7 +109,7 @@ var save = function() {
   } else chargedTo.push(this.chargedTo)
 
 
-  this.$http.post(`${baseURI}/api/expense`, {
+  this.$http.post(`${this.$baseURI}/api/expense`, {
     comment: this.comment,
     amount: this.amount,
     payer: payer,
@@ -143,7 +140,7 @@ goList = function() {
 
 listUser = function(_this) {
   if(!_this) _this = this
-  _this.$http.get(`${baseURI}/api/user`)
+  _this.$http.get(`${_this.$baseURI}/api/user`)
   .then((result) => {
     _this.userList = result.data
     console.log('userList: ', _this.userList)

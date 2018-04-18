@@ -58,8 +58,6 @@
 var moment = require('moment');
 moment().format();
 
-const baseURI = process.env.baseURI;
-
 var data = {
       balance: 0,
       budget: 0,
@@ -77,7 +75,7 @@ var data = {
 var save = function() {
   this.cash = this.cash + parseInt(this.addedMoney)
   this.addedMoney = 0
-  this.$http.put(`${baseURI}/api/budget/` + this.budgetId, {
+  this.$http.put(`${this.$baseURI}/api/budget/` + this.budgetId, {
     cash: this.cash,
     card: this.card
   })
@@ -99,7 +97,7 @@ goHome = function() {
 
 getBudget = function(_this) {
   if(_this == undefined) _this = this
-  _this.$http.get(`${baseURI}/api/budget/balance/` + _this.userId)
+  _this.$http.get(`${_this.$baseURI}/api/budget/balance/` + _this.userId)
   .then((result) => {
       _this.card = result.data[0].card
       _this.cash = result.data[0].cash
@@ -117,7 +115,7 @@ onChangeWhose = function() {
 
 listUser = function(_this) {
   if(!_this) _this = this
-  _this.$http.get(`${baseURI}/api/user`)
+  _this.$http.get(`${_this.$baseURI}/api/user`)
   .then((result) => {
     _this.userList = result.data
   }).catch((err) => {

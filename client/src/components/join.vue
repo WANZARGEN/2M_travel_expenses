@@ -31,16 +31,14 @@ export default {
   },
   methods: {
     join: function() {
-      const baseURI = process.env.baseURI;
-
-      this.$http.post(`${baseURI}/api/user`, {
+      this.$http.post(`${this.$baseURI}/api/user`, {
         name: this.name,
         password: this.password
       })
       .then((result) => {
         console.log(result.data)
         let userId = result.data._id
-        this.$http.post(`${baseURI}/api/budget`, {
+        this.$http.post(`${this.$baseURI}/api/budget`, {
           user: userId,
           cash: 0,
           card: 0

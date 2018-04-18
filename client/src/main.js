@@ -12,7 +12,12 @@ Vue.config.productionTip = false
 axios.defaults.timeout = 5000
 axios.defaults.headers.post['Content-Type'] = 'application/charset=UTF-8'
 
+console.log('process.env.NODE_ENV: ', process.env.NODE_ENV)
 Vue.prototype.$http = axios
+Vue.prototype.$baseURI = process.env.NODE_ENV == "production" ? "http://13.125.169.219:3000" : "http://127.0.0.1:3000";
+console.log('Vue.prototype.$baseURI: ', Vue.prototype.$baseURI)
+Vue.prototype.$exchangeURI = "https://openexchangerates.org/api/"
+Vue.prototype.$appId = "de0ac08850bb4c2a8eb573c120c5b74f"
 
 Vue.use(Vue2Filters)
 

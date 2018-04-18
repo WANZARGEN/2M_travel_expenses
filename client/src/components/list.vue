@@ -101,10 +101,6 @@ import {Circle10} from 'vue-loading-spinner'
 var moment = require('moment');
 moment().format();
 
-const baseURI = process.env.baseURI;
-const exchangeURI = process.env.exchangeURI;
-const appId = process.env.appId;
-
 var selectCount = 0;
 
 /*------------------------------------------------------*
@@ -135,7 +131,7 @@ var data = {
  *------------------------------------------------------*/
 var getExchangeRates = function(_this) {
   if(_this == undefined) _this = this
-  _this.$http.get(`${exchangeURI}latest.json?app_id=${appId}`)
+  _this.$http.get(`${_this.$exchangeURI}latest.json?app_id=${_this.$appId}`)
   .then((result) => {
     _this.rate.HKD = result.data.rates.HKD
     _this.rate.KRW = result.data.rates.KRW
@@ -147,9 +143,8 @@ var getExchangeRates = function(_this) {
 },
 
 getList = function(_this, sort) {
-  console.log('baseURI: ', baseURI)
   if(_this == undefined) _this = this
-  let uri = `${baseURI}/api/expense`
+  let uri = `${_this.$baseURI}/api/expense`
   if(sort != undefined) uri += '/sort/' + sort
   _this.$http.get(uri)
   .then((result) => {
@@ -160,7 +155,7 @@ getList = function(_this, sort) {
 },
 
 getBalance = function(_this, list) {
-  _this.$http.get(`${baseURI}/api/budget`)
+  _this.$http.get(`${_this.$baseURI}/api/budget`)
   .then((result) => {
     let res = result.data
 
@@ -279,7 +274,7 @@ del = function() {
     for(let i = 0; i < this.selectList.length; i++) {
       if(this.selectList[i]) {
         this.list.splice(i, 1)
-        this.$http.delete(`${baseURI}/api/expense/` + this.selectList[i])
+        this.$http.delete(`${_this.$baseURI}/api/expense/` + this.selectList[i])
         .then((result) => {
           if(--deletedCount == 0) {
             let selectedElems = document.getElementsByClassName('selected')
@@ -314,7 +309,7 @@ goHome = function() {
 
 listUser = function(_this) {
   if(!_this) _this = this
-  _this.$http.get(`${baseURI}/api/user`)
+  _this.$http.get(`${_this.$baseURI}/api/user`)
   .then((result) => {
     _this.userList = result.data
     console.log('userList: ', _this.userList)

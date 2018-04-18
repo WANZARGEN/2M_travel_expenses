@@ -31,9 +31,7 @@ export default {
   },
   methods: {
     login: function() {
-      const baseURI = process.env.baseURI;
-      
-      this.$http.post(`${baseURI}/api/user/login`, {
+      this.$http.post(`${this.$baseURI}/api/user/login`, {
         name: this.name,
         password: this.password
       })
