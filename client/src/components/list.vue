@@ -48,25 +48,25 @@
       <tbody>
         <tr class='summary'>
           <td>-</td>
-          <td>{{accum | currency(symbol, 0, { symbolOnLeft: true }) }}</td>
+          <td>{{accum | currency(symbol, 1, { symbolOnLeft: true }) }}</td>
           <td>-</td>
           <!-- <td>-</td> -->
-          <td>{{cash | currency(symbol, 0, { symbolOnLeft: true }) }}</td>
-          <td>{{card | currency(symbol, 0, { symbolOnLeft: true }) }}</td>
+          <td>{{cash | currency(symbol, 1, { symbolOnLeft: true }) }}</td>
+          <td>{{card | currency(symbol, 1, { symbolOnLeft: true }) }}</td>
           <td v-if="debt == '-'">{{debt}}</td>
-          <td v-else>{{debt | currency(symbol, 0, { symbolOnLeft: true }) }}</td>
+          <td v-else>{{debt | currency(symbol, 1, { symbolOnLeft: true }) }}</td>
         </tr>
 
         <tr v-for='(item, index) in calculatedList' v-bind:key="index" 
         v-on:click='selectItem(item._id, index, $event)'>
           <td>{{item.date}}</td>
-          <td>{{item.amount | currency('', 0, { symbolOnLeft: true }) }}</td>
+          <td>{{item.amount | currency('', 1, { symbolOnLeft: true }) }}</td>
           <td>{{item.comment}}</td>
           <!-- <td>{{item.accum}}</td> -->
-          <td>{{item.cash | currency('', 0, { symbolOnLeft: true }) }}</td>
-          <td>{{item.card | currency('', 0, { symbolOnLeft: true }) }}</td>
+          <td>{{item.cash | currency('', 1, { symbolOnLeft: true }) }}</td>
+          <td>{{item.card | currency('', 1, { symbolOnLeft: true }) }}</td>
           <td v-if="item.debt == '-'">{{item.debt}}</td>
-          <td v-else>{{item.debt | currency('', 0, { symbolOnLeft: true }) }}</td>
+          <td v-else>{{item.debt | currency('', 1, { symbolOnLeft: true }) }}</td>
           <!-- <td>{{item.payer.name}}</td>
           <td>{{item.chargedTo.name}}</td> -->
         </tr>
@@ -274,7 +274,7 @@ del = function() {
     for(let i = 0; i < this.selectList.length; i++) {
       if(this.selectList[i]) {
         this.list.splice(i, 1)
-        this.$http.delete(`${_this.$baseURI}/api/expense/` + this.selectList[i])
+        this.$http.delete(`${this.$baseURI}/api/expense/` + this.selectList[i])
         .then((result) => {
           if(--deletedCount == 0) {
             let selectedElems = document.getElementsByClassName('selected')
@@ -360,36 +360,6 @@ export default {
           item.card = 0
         }
 
-        //amount
-        if(item.unit == 'HKD') {
-          if(this.unit == 'KRW') item.amount = item.amount / this.rate.HKD * this.rate.KRW
-          else if(this.unit == 'USD') item.amount /= this.rate.HKD
-        } else if(item.unit == 'KRW') {
-          if(this.unit == 'HKD') item.amount = item.amount / this.rate.KRW * this.rate.HKD
-          else if(this.unit == 'USD') item.amount /= this.rate.KRW
-        } else {
-          if(this.unit == 'HKD') item.amount *= this.rate.HKD
-          else if(this.unit == 'KRW') item.amount *= this.rate.KRW
-        }
-
-        //date
-        item.date = moment(new Date(item.date)).format('MM/DD')
-
-        //accum
-        this.accum += item.amount
-        item.accum = this.accum
-
-        //cash or card
-        if(item.method == 'cash') {
-          this.cash -= item.amount
-          item.cash = item.amount
-          item.card = 0
-        } else if (item.method == 'card') {
-          this.card -= item.amount
-          item.card = item.amount
-          item.cash = 0
-        }
-        
         //payer
         if(item.payer.length == 2) {
           item.payer = {}
@@ -417,7 +387,7 @@ export default {
         }
         else {
           for(let i = 0; i < this.userList.length; i++) {
-            for(let j = 0; j < item.payer.length; j++) {
+            for(let j = 0; j < item.chargedTo.length; j++) {
               if(this.userList[i]._id == item.chargedTo[j]) {
                 item.chargedTo = {}
                 item.chargedTo.name = this.userList[i].name
@@ -426,6 +396,18 @@ export default {
               }
             }
           }
+        }
+
+         //amount by unit
+        if(item.unit == 'HKD') {
+          if(this.unit == 'KRW') item.amount = item.amount / this.rate.HKD * this.rate.KRW
+          else if(this.unit == 'USD') item.amount /= this.rate.HKD
+        } else if(item.unit == 'KRW') {
+          if(this.unit == 'HKD') item.amount = item.amount / this.rate.KRW * this.rate.HKD
+          else if(this.unit == 'USD') item.amount /= this.rate.KRW
+        } else {
+          if(this.unit == 'HKD') item.amount *= this.rate.HKD
+          else if(this.unit == 'KRW') item.amount *= this.rate.KRW
         }
 
         //debt
@@ -449,11 +431,45 @@ export default {
           this.debt += item.debt
         }
 
-        // console.log('======= ' + index + ' =======')
-        // console.log('item.payer: ', item.payer)
-        // console.log('item.chargedTo: ', item.chargedTo)
-        // console.log('item.debt: ', item.debt)
-        // console.log('=================')
+
+        //amount by payer
+        if(this.whose != 'all' && item.payer.id == 'all') {
+          item.amount = item.amount / 2
+        }
+        
+        //date
+        item.date = moment(new Date(item.date)).format('MM/DD')
+
+        //accum
+        this.accum += item.amount
+        item.accum = this.accum
+
+        
+
+        //cash or card
+        if(this.whose == 'all' || item.payer.id == 'all' || this.whose == item.payer.id) {
+          if(item.method == 'cash') {
+            this.cash -= item.amount
+            item.cash = item.amount
+            item.card = 0
+          } else if (item.method == 'card') {
+            this.card -= item.amount
+            item.card = item.amount
+            item.cash = 0
+          }
+        } else if(this.whose != item.payer.id) {
+          item.card = 0
+          item.cash = 0
+        } 
+
+        
+        console.log('======= ' + index + ' =======')
+        console.log('this.whose: ', this.whose)
+        console.log('item.payer: ', item.payer)
+        console.log('item.chargedTo: ', item.chargedTo)
+        console.log('item.chargedTo == this.whose: ', item.chargedTo == this.whose)
+        console.log('item.debt: ', item.debt)
+        console.log('=================')
 
         return item
       })
