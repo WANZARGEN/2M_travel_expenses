@@ -192,10 +192,12 @@ getBalance = function(_this, list) {
     _this.card = 0
     _this.cash = _this.balance[_this.whose].cash
 
-    if(list != undefined) _this.list = list
-    else if(list.length == 0) {
-      if(_this.unit == 'KRW') _this.cash = _this.cash / _this.rate.HKD * _this.rate.KRW
-      else if(_this.unit == 'USD') _this.cash = _this.cash / _this.rate.HKD
+    if(list != undefined) {
+      if(list.length == 0) {
+        if(_this.unit == 'KRW') _this.cash = _this.cash / _this.rate.HKD * _this.rate.KRW
+        else if(_this.unit == 'USD') _this.cash = _this.cash / _this.rate.HKD
+      }
+      _this.list = list
     }
     _this.isLoading = false
   }).catch((err) => {
