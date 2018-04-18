@@ -144,6 +144,12 @@ var getExchangeRates = function(_this) {
 
 getList = function(_this, sort) {
   if(_this == undefined) _this = this
+
+  _this.accum = 0
+  _this.card = 0
+  _this.cash = _this.balance[_this.whose].cash
+  _this.debt = 0
+  
   let uri = `${_this.$baseURI}/api/expense`
   if(sort != undefined) uri += '/sort/' + sort
   _this.$http.get(uri)
@@ -351,10 +357,6 @@ export default {
         //init
         let payer, debtor
         if(index == 0) {
-          this.accum = 0
-          this.card = 0
-          this.cash = this.balance[this.whose].cash
-          this.debt = 0
           item.accum = 0
           item.cash = 0
           item.card = 0
