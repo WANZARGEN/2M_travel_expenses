@@ -1,6 +1,6 @@
 <template>
 <div id="app">
-  <h1>{{ msg }}</h1> <br>
+  <h1>Let's go HK! WJ &amp; JA</h1> <br>
 
 
   <form>
@@ -12,7 +12,7 @@
   <br><br>
   
 
-  <span>{{ owner }}</span>
+  <span>made by WANZARGEN </span>
 
 </div>
 </template>
@@ -23,8 +23,6 @@ export default {
   name: 'app',
   data: function() {
     return {
-      msg: "Let's go HK! WJ & JA",
-      owner: "made by WANZARGEN ",
       password: '',
       name: ''
     }
