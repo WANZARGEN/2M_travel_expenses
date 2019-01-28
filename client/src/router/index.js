@@ -17,32 +17,32 @@ export default new Router({
   mode: 'history',
   routes: [
     {
-      path: '/join',
+      path: '/2m/join',
       name: 'join',
       component: JoinComponent
     },
     {
-      path: '/login',
+      path: '/2m/login',
       name: 'login',
       component: LoginComponent
     },
     {
-      path: '/home',
+      path: '/2m/home',
       name: 'home',
       component: HomeComponent
     },
     {
-      path: '/list',
+      path: '/2m/list',
       name: 'list',
       component: ListComponent
     },
     {
-      path: '/edit',
+      path: '/2m/edit',
       name: 'edit',
       component: EditComponent
     },
     {
-      path: '/account',
+      path: '/2m/account',
       name: 'account',
       component: AccountComponent
     },
