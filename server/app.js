@@ -35,6 +35,10 @@ app.all('*', function(req, res, next) {
   next();
 });
 
+// for debug temporarily
+app.all('/*', function(req, res) {
+  console.log('Intercepting requests...', req);
+});
 
 // Static File Service
 app.use(express.static(path.join(__dirname, 'public')));
