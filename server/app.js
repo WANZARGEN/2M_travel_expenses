@@ -36,8 +36,9 @@ app.all('*', function(req, res, next) {
 });
 
 // for debug temporarily
-app.all('/*', function(req, res) {
-  console.log('Intercepting requests...', req);
+app.all('/*', function(req, res, next) {
+  console.log('[req.url]', req.url);
+  next();
 });
 
 // Static File Service
