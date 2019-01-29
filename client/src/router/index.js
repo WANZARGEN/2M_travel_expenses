@@ -17,7 +17,7 @@ export default new Router({
   mode: 'history',
   routes: [
     {
-      path: '/2m/join',
+      path: '/join',
       name: 'join',
       component: JoinComponent
     },
